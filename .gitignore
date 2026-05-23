@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.venv
+dist
+dist-ssr
+*.local
+
+# Amazon Q
+.amazonq/
+
+# Markdown files
+*.md
+
+# Environment files
+.env
+.env.*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.vercel
+
+# Cursor
+.cursor/
+
+# Graphiflow
+.graphiflow/
+
+graphify-out
