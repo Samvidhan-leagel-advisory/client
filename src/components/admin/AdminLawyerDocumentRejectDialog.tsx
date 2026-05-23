@@ -52,7 +52,7 @@ export function AdminLawyerDocumentRejectDialog({
             rows={4}
             value={reason}
             onChange={(e) => onReasonChange(e.target.value)}
-            placeholder="e.g. Bar Council ID unreadable — please upload a clearer scan."
+            placeholder="e.g. Bar Council ID unreadable. Please upload a clearer scan."
             disabled={isSubmitting}
           />
         </div>

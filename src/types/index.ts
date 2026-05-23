@@ -310,9 +310,10 @@ export interface MyRazorpaySubscriptionsResponse {
   subscription: {
     id: string;
     status: string;
+    isLifetime: boolean;
     cancelledAtPeriodEnd: boolean;
-    currentPeriodStart: string | null;
-    currentPeriodEnd: string | null;
+    startDate: string | null;
+    endDate: string | null;
     plan: SubscriptionPlanSummary;
   } | null;
 }

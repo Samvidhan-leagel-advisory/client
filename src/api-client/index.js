@@ -330,11 +330,12 @@ export const getMyRazorpaySubscription = () => {
   });
 };
 
-export const startRazorpaySubscription = (body) => {
+export const startRazorpaySubscription = (body, headers) => {
   return apiClient({
     method: routes.RAZORPAY_SUBSCRIPTION_START.METHOD,
     url: routes.RAZORPAY_SUBSCRIPTION_START.URL,
     data: body,
+    ...(headers ? { headers } : {}),
   });
 };
 

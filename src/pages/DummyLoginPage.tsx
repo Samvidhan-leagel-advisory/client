@@ -78,7 +78,7 @@ const DummyLoginPage = () => {
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold">Dummy Login</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Dev shortcut — Google SSO bypass. Pick a role to sign in instantly.
+            Dev shortcut. Google SSO bypass. Pick a role to sign in instantly.
           </p>
         </div>
 

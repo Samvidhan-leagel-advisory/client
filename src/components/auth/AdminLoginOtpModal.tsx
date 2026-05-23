@@ -147,7 +147,7 @@ export function AdminLoginOtpModal({
                 {otpRemainingSec > 0 ? (
                   <span>Expires in {formatCountdown(otpRemainingSec)}</span>
                 ) : (
-                  <span>Expired — resend</span>
+                  <span>Expired. Resend</span>
                 )}
               </div>
             </div>

@@ -19,6 +19,7 @@ import {
   Gavel,
   MessageSquare,
   Scale,
+  ScrollText,
   Shield,
   Upload,
   UserCheck,
@@ -44,7 +45,7 @@ const features = [
   {
     icon: MessageSquare,
     title: 'Case chat',
-    desc: 'Message your lawyer inside the case—no scattered WhatsApp or email threads.',
+    desc: 'Message your lawyer inside the case, with no scattered WhatsApp or email threads.',
   },
   {
     icon: Clock,
@@ -116,10 +117,24 @@ const legalHighlights = [
   },
 ];
 
+const generalTerms = [
+  'All plans provide access to consultations with advocates registered under the Bar Council of India.',
+  'Consultations are advisory in nature and do not constitute a formal legal retainer or court representation.',
+  'Offline consultations under monthly plans are strictly limited to 1 per calendar month and cannot be carried forward or accumulated.',
+  'Offline consultations are applicable only within Mumbai and must be scheduled in advance with at least 48 hours\u2019 notice.',
+  'Legal notice drafting/response (\u20B94,999 plan) covers one notice per membership tenure and must be availed within 12 months of enrolment.',
+  'Monthly plan benefits are active only during a paid subscription period; benefits lapse immediately upon non-renewal or cancellation.',
+  'Membership Identity Cards are issued in the member\u2019s registered name and are non-transferable.',
+  'Samvidhan Legal Advisory reserves the right to modify plan features with prior notice of 30 days to existing members.',
+  'All fees are inclusive of applicable taxes unless stated otherwise. No refunds are applicable on lifetime one-time plans once activated.',
+  'Disputes, if any, shall be subject to the jurisdiction of courts in Mumbai, Maharashtra.',
+  'By enrolling, members agree to the full Terms of Service available on the Samvidhan Legal Advisory website.',
+];
+
 const faqs = [
   {
     q: 'What is Samvidhan Legal Advisory?',
-    a: 'An online platform to open legal cases, upload documents, and work with verified advocates—without visiting multiple offices for every update.',
+    a: 'An online platform to open legal cases, upload documents, and work with verified advocates, without visiting multiple offices for every update.',
   },
   {
     q: 'How does the case flow work?',
@@ -156,7 +171,7 @@ const Homepage = () => (
         </h1>
         <p className="mt-4 max-w-2xl text-primary-foreground/75 sm:text-lg">
           Samvidhan Legal Advisory helps you open a matter, share documents, message your
-          lawyer, and track progress—built for how legal work actually happens in India.
+          lawyer, and track progress. Built for how legal work actually happens in India.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button
@@ -187,6 +202,9 @@ const Homepage = () => (
           <a href="#case-flow" className="hover:text-primary-foreground">
             Case flow
           </a>
+          <a href="#terms-general" className="hover:text-primary-foreground">
+            General terms
+          </a>
           <a href="#legal" className="hover:text-primary-foreground">
             Terms & DPDP
           </a>
@@ -206,7 +224,7 @@ const Homepage = () => (
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl font-bold sm:text-3xl">Built for real legal cases</h2>
           <p className="mt-2 text-muted-foreground">
-            Everything you need after sign-in—from filing a query to working with your advocate.
+            Everything you need after sign-in, from filing a query to working with your advocate.
           </p>
         </div>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -229,7 +247,7 @@ const Homepage = () => (
       <div className="container max-w-3xl">
         <h2 className="text-center text-2xl font-bold sm:text-3xl">How the case flow works</h2>
         <p className="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
-          From your first sign-in to ongoing work with your advocate—step by step on the platform.
+          From your first sign-in to ongoing work with your advocate, step by step on the platform.
         </p>
         <ol className="mt-10 space-y-5">
           {caseFlowSteps.map((step, i) => (
@@ -262,8 +280,56 @@ const Homepage = () => (
       </div>
     </section>
 
+    {/* General Terms & Conditions */}
+    <section id="terms-general" className="scroll-mt-20 py-12 md:py-16">
+      <div className="container max-w-4xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-navy">
+            <ScrollText className="h-5 w-5 text-gold" aria-hidden />
+          </div>
+          <h2 className="mt-4 text-2xl font-bold sm:text-3xl">
+            General Terms & Conditions
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            Key rules that apply to all Samvidhan Legal Advisory plans and memberships.
+          </p>
+        </div>
+        <ul className="mt-10 grid gap-3 sm:grid-cols-2">
+          {generalTerms.map((term, i) => (
+            <li
+              key={i}
+              className="flex gap-3 rounded-xl border bg-card p-4 shadow-sm"
+            >
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-xs font-semibold text-gold">
+                {i + 1}
+              </span>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {term}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Full legal text:{' '}
+          <Link
+            to={ROUTES.terms}
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Terms of Service
+          </Link>
+          {' \u00B7 '}
+          <Link
+            to={ROUTES.dpdpConsent}
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            DPDP notice
+          </Link>
+        </p>
+      </div>
+    </section>
+
     {/* Terms & DPDP on homepage */}
-    <section id="legal" className="scroll-mt-20 py-12 md:py-16">
+    <section id="legal" className="scroll-mt-20 bg-muted/40 py-12 md:py-16">
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl font-bold sm:text-3xl">Terms & data protection</h2>

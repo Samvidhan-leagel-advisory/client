@@ -50,7 +50,7 @@ export default function ActivePlanCard({ loading, active, isCancelling, onCancel
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Cancels {formatDateEnIn(active.currentPeriodEnd)}
+                Cancels {formatDateEnIn(active.endDate)}
               </span>
             </div>
           ) : (
@@ -63,22 +63,22 @@ export default function ActivePlanCard({ loading, active, isCancelling, onCancel
           )}
           <h2 className="text-2xl font-bold">{active.plan.name}</h2>
           <p className="text-sm capitalize text-muted-foreground">
-            Billed {active.plan.billingCycle}
+            {active.isLifetime ? 'Lifetime membership' : `Billed ${active.plan.billingCycle}`}
           </p>
-          {!active.cancelledAtPeriodEnd && (
+          {!active.isLifetime && !active.cancelledAtPeriodEnd && (
             <div className="flex items-center gap-1.5 pt-1 text-sm text-muted-foreground">
               <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-              <span>Renews {formatDateEnIn(active.currentPeriodEnd)}</span>
+              <span>Renews {formatDateEnIn(active.endDate)}</span>
             </div>
           )}
-          {active.cancelledAtPeriodEnd && (
+          {!active.isLifetime && active.cancelledAtPeriodEnd && (
             <p className="pt-1 text-sm text-muted-foreground">
-              You have full access until {formatDateEnIn(active.currentPeriodEnd)}.
+              You have full access until {formatDateEnIn(active.endDate)}.
             </p>
           )}
         </div>
 
-        {!active.cancelledAtPeriodEnd && (
+        {!active.isLifetime && !active.cancelledAtPeriodEnd && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
@@ -101,7 +101,7 @@ export default function ActivePlanCard({ loading, active, isCancelling, onCancel
                 <AlertDialogTitle>Cancel your subscription?</AlertDialogTitle>
                 <AlertDialogDescription>
                   You'll keep access to <strong>{active.plan.name}</strong> until{' '}
-                  <strong>{formatDateEnIn(active.currentPeriodEnd)}</strong>. After that it won't
+                  <strong>{formatDateEnIn(active.endDate)}</strong>. After that it won't
                   renew.
                 </AlertDialogDescription>
               </AlertDialogHeader>

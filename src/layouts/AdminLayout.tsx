@@ -131,7 +131,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                 'hidden',
                 collapsed && 'flex items-center justify-center lg:flex'
               )}
-              title="Samvidhan Legal Advisory — Admin panel"
+              title="Samvidhan Legal Advisory · Admin panel"
             >
               <BrandLogo
                 as="link"

@@ -108,7 +108,7 @@ export const FileUpload = ({
           Drag & drop or click to upload
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Images (any), PDF, DOC — max {maxSizeMB}MB each · up to {maxFiles} files
+          Images (any), PDF, DOC. Max {maxSizeMB}MB each · up to {maxFiles} files
         </p>
       </div>
 

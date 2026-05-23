@@ -165,8 +165,8 @@ export function AdminCaseInternalNotesContent({
           <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 sm:mt-0" />
           <span className="min-w-0 flex-1 leading-snug">
             {isCaseClosed
-              ? 'Case closed — notes are locked and cannot be added.'
-              : 'Private — visible only to admins and lawyers.'}
+              ? 'Case closed. Notes are locked and cannot be added.'
+              : 'Private. Visible only to admins and lawyers.'}
           </span>
         </div>
         {caseCode && (

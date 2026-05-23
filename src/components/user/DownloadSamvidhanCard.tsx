@@ -32,11 +32,11 @@ export const DownloadSamvidhanCard = ({
         photoUrl: freshUser?.avatarUrl ?? user?.avatarUrl,
         userMobileNo: freshUser?.phone ?? user?.phone ?? '',
         memStartDate: new Date(
-          activeSubscription?.currentPeriodStart ?? ''
+          activeSubscription?.startDate ?? ''
         ).toLocaleDateString('en-GB'),
-        memEndDate: new Date(
-          activeSubscription?.currentPeriodEnd ?? ''
-        ).toLocaleDateString('en-GB'),
+        memEndDate: activeSubscription?.endDate
+          ? new Date(activeSubscription.endDate).toLocaleDateString('en-GB')
+          : 'Lifetime',
       });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Something went wrong.';

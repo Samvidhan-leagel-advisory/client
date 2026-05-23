@@ -2,7 +2,7 @@ import { cancelRazorpaySubscription, getMyRazorpaySubscription, getSubscriptionP
 import type { MyRazorpaySubscriptionsResponse, SubscriptionCatalogPlan } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { openRazorpaySubscriptionCheckout } from '@/lib/razorpay-subscription-checkout';
+import { openRazorpayOrderCheckout, openRazorpaySubscriptionCheckout } from '@/lib/razorpay-subscription-checkout';
 import { queryClient } from '@/lib/query-client';
 import { getApiErrorMessage } from '@/lib/utils';
 import { sortPlansMonthlyFirst } from '@/pages/user/userSubscription.helpers';
@@ -25,11 +25,28 @@ export function useSubscription() {
   });
 
   const startMutation = useMutation({
-    mutationFn: (planId: string) => startRazorpaySubscription({ subscriptionPlanId: planId }),
+    mutationFn: (planId: string) =>
+      startRazorpaySubscription(
+        { subscriptionPlanId: planId },
+        { 'X-Idempotency-Key': crypto.randomUUID() },
+      ),
     onSuccess: async (res) => {
-      const { subscriptionId, razorpayKeyId, shortUrl, planName } = res.data;
+      const { subscriptionId, razorpayKeyId, shortUrl, planName, isLifetime, orderId, amount, currency } = res.data;
 
-      if (!subscriptionId || !razorpayKeyId) {
+      const prefill = {
+        name: user?.fullName,
+        email: user?.email,
+        contact: user?.phone?.replace(/\s/g, ''),
+      };
+
+      const onSuccess = async () => {
+        await queryClient.invalidateQueries({ queryKey: ['razorpaySubscriptionMe'] });
+        toast({ title: 'Payment successful', description: 'Your plan is now active.' });
+        setStartingPlanId(null);
+      };
+      const onDismiss = () => setStartingPlanId(null);
+
+      if (!razorpayKeyId) {
         if (shortUrl) window.location.assign(shortUrl);
         else toast({ variant: 'destructive', title: 'Checkout unavailable', description: 'Missing Razorpay config from server.' });
         setStartingPlanId(null);
@@ -37,23 +54,33 @@ export function useSubscription() {
       }
 
       try {
-        await openRazorpaySubscriptionCheckout({
-          keyId: razorpayKeyId,
-          subscriptionId,
-          businessName: 'Samvidhan',
-          planLabel: planName,
-          prefill: {
-            name: user?.fullName,
-            email: user?.email,
-            contact: user?.phone?.replace(/\s/g, ''),
-          },
-          onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: ['razorpaySubscriptionMe'] });
-            toast({ title: 'Payment successful', description: 'Subscription updates once Razorpay confirms.' });
-            setStartingPlanId(null);
-          },
-          onDismiss: () => setStartingPlanId(null),
-        });
+        if (isLifetime && orderId) {
+          await openRazorpayOrderCheckout({
+            keyId: razorpayKeyId,
+            orderId,
+            amount: amount as number,
+            currency: currency as string,
+            businessName: 'Samvidhan',
+            planLabel: planName,
+            prefill,
+            onSuccess,
+            onDismiss,
+          });
+        } else if (subscriptionId) {
+          await openRazorpaySubscriptionCheckout({
+            keyId: razorpayKeyId,
+            subscriptionId,
+            businessName: 'Samvidhan',
+            planLabel: planName,
+            prefill,
+            onSuccess,
+            onDismiss,
+          });
+        } else {
+          if (shortUrl) window.location.assign(shortUrl);
+          else toast({ variant: 'destructive', title: 'Checkout unavailable', description: 'Missing Razorpay config from server.' });
+          setStartingPlanId(null);
+        }
       } catch (e) {
         toast({ variant: 'destructive', title: 'Could not open checkout', description: getApiErrorMessage(e) });
         if (shortUrl) window.location.assign(shortUrl);

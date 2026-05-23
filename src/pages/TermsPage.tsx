@@ -9,7 +9,7 @@ const sections = [
   },
   {
     title: '2. The service',
-    body: 'We provide a platform to open legal cases, share documents, message assigned advocates, and manage subscriptions. We are not a law firm and do not provide legal advice ourselves—advocates on the platform do.',
+    body: 'We provide a platform to open legal cases, share documents, message assigned advocates, and manage subscriptions. We are not a law firm and do not provide legal advice ourselves; advocates on the platform do.',
   },
   {
     title: '3. Your account',

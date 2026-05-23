@@ -79,7 +79,7 @@ export function useCaseSessionRequestDisplay(
   const statusHint = isRejected
     ? 'This session was not approved. You can book a new slot anytime.'
     : isPending
-      ? 'Waiting for approval — a Google Meet link will appear here once confirmed.'
+      ? 'Waiting for approval. A Google Meet link will appear here once confirmed.'
       : isAccepted && !meetingLink
         ? 'Session confirmed. The Meet link will appear here before your scheduled time.'
         : null;

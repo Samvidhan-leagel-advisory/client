@@ -31,7 +31,7 @@ async function resolvePhotoDataUri(photoUrl?: string): Promise<string | undefine
   if (!photoUrl) return undefined;
   if (photoUrl.startsWith('data:')) return photoUrl;
   const { data } = await proxyAsset(photoUrl);
-  return data.dataUri;
+  return data.dataUri as string | undefined;
 }
 
 async function buildCardData(input: BuildCardInput): Promise<SamvidhanCardPdfData> {

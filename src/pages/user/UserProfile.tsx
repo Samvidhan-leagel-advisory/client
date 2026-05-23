@@ -74,10 +74,12 @@ const UserProfile = () => {
                     <div className="text-right text-sm">
                       <div className="flex items-center justify-end gap-1 text-muted-foreground">
                         <Calendar className="h-3.5 w-3.5 shrink-0" />
-                        {subscription.cancelledAtPeriodEnd ? (
-                          <span>Access until {formatDateEnIn(subscription.currentPeriodEnd)}</span>
+                        {subscription.isLifetime ? (
+                          <span>Lifetime access</span>
+                        ) : subscription.cancelledAtPeriodEnd ? (
+                          <span>Access until {formatDateEnIn(subscription.endDate)}</span>
                         ) : (
-                          <span>Renews {formatDateEnIn(subscription.currentPeriodEnd)}</span>
+                          <span>Renews {formatDateEnIn(subscription.endDate)}</span>
                         )}
                       </div>
                       <div

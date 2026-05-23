@@ -11,7 +11,7 @@ const AboutPage = () => (
         <h1 className="text-2xl font-bold sm:text-3xl">About Samvidhan Legal Advisory</h1>
         <p className="mt-3 text-muted-foreground">
           We connect Indian citizens with verified advocates through a simple online case
-          workspace—so legal help is easier to access, not harder to find.
+          workspace, so legal help is easier to access, not harder to find.
         </p>
 
         <div className="mt-10 space-y-8">
@@ -53,7 +53,7 @@ const AboutPage = () => (
             <div>
               <h2 className="font-semibold">Practice areas</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Civil, criminal, family, property, consumer, corporate, and more—choose a category
+                Civil, criminal, family, property, consumer, corporate, and more. Choose a category
                 when you open a case and we match you with a suitable advocate.
               </p>
             </div>

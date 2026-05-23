@@ -19,7 +19,7 @@ export default function UserSubscription() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-3xl space-y-8">
+      <div className="max-w-4xl space-y-8">
         <h1 className="text-2xl font-bold">Subscription</h1>
 
         <ActivePlanCard

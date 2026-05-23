@@ -62,13 +62,9 @@ export default function PlanGrid(props: PlanGridProps) {
     );
   }
 
+  const gridCols = plans.length === 1 ? 'mx-auto max-w-sm' : 'sm:grid-cols-2';
   return (
-    <div
-      className={cn(
-        'grid gap-4',
-        plans.length <= 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3'
-      )}
-    >
+    <div className={cn('grid items-stretch gap-5', gridCols)}>
       {plans.map((plan) => {
         const isCurrent = !isAdmin && activePlanId === plan.id;
         const isThisBusy = busyPlanId === plan.id;
@@ -80,13 +76,15 @@ export default function PlanGrid(props: PlanGridProps) {
           <div
             key={plan.id}
             className={cn(
-              'relative flex flex-col rounded-2xl border bg-card p-5 transition-shadow',
+              'relative flex h-full flex-col rounded-2xl border bg-card p-5 transition-shadow',
               !isAdmin &&
                 yearly &&
                 !isCurrent &&
                 'border-gold shadow-sm ring-1 ring-gold/20',
               !isAdmin && isCurrent && 'border-gold/60 bg-gold/5',
-              isAdmin && yearly && 'border-gold/40 shadow-sm ring-1 ring-gold/15'
+              isAdmin &&
+                yearly &&
+                'border-gold/40 shadow-sm ring-1 ring-gold/15'
             )}
           >
             {!isAdmin && yearly && !isCurrent && (
@@ -95,49 +93,49 @@ export default function PlanGrid(props: PlanGridProps) {
               </span>
             )}
             {!isAdmin && isCurrent && (
-              <span className="absolute -top-3 left-4 z-20 inline-flex items-center gap-1 rounded-full border border-gold/40 bg-gold/20 bg-white px-3 py-0.5 text-xs font-semibold text-gold">
+              <span className="absolute -top-3 left-4 z-20 inline-flex items-center gap-1 rounded-full border border-gold/40 bg-white px-3 py-0.5 text-xs font-semibold text-gold">
                 <CheckCircle2 className="h-3 w-3" /> Your plan
               </span>
             )}
 
-            <div className="flex-1 space-y-3">
-              <div>
-                <h3 className="text-base font-semibold">{plan.name}</h3>
-                {plan.description && (
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {plan.description}
-                  </p>
-                )}
-              </div>
-
-              <p className="text-2xl font-bold">
-                {formatInr(plan.priceInr)}
-                <span className="text-sm font-normal text-muted-foreground">
-                  /{plan.billingCycle}
-                </span>
-              </p>
-
-              {feats.length > 0 && (
-                <ul className="space-y-1.5">
-                  {feats.map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-start gap-2 text-sm text-muted-foreground"
-                    >
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold leading-tight">
+                {plan.name}
+              </h3>
+              {plan.description && (
+                <p className="text-xs leading-snug text-muted-foreground">
+                  {plan.description}
+                </p>
               )}
             </div>
+
+            <p className="mt-4 text-2xl font-bold leading-none">
+              {formatInr(plan.priceInr)}
+              <span className="ml-0.5 text-sm font-normal text-muted-foreground">
+                /{plan.billingCycle}
+              </span>
+            </p>
+
+            {feats.length > 0 && (
+              <ul className="mt-5 flex-1 space-y-2">
+                {feats.map((f) => (
+                  <li
+                    key={f}
+                    className="flex items-start gap-2 text-sm leading-snug text-muted-foreground"
+                  >
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                    <span className="min-w-0">{f}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {showButton &&
               (isAdmin ? (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-5 w-full"
+                  className="mt-6 w-full"
                   disabled={isThisBusy && isPending}
                   onClick={() => onEdit?.(plan.id)}
                 >
@@ -155,10 +153,12 @@ export default function PlanGrid(props: PlanGridProps) {
                 </Button>
               ) : (
                 <Button
-                  variant={isCurrent ? 'outline' : yearly ? 'default' : 'outline'}
+                  variant={
+                    isCurrent ? 'outline' : yearly ? 'default' : 'outline'
+                  }
                   size="sm"
                   className={cn(
-                    'mt-5 w-full',
+                    'mt-6 w-full',
                     yearly &&
                       !isCurrent &&
                       'bg-gold text-accent-foreground hover:bg-gold/90',
@@ -170,7 +170,8 @@ export default function PlanGrid(props: PlanGridProps) {
                 >
                   {isThisBusy && isPending ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Starting…
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{' '}
+                      Starting…
                     </>
                   ) : isThisBusy ? (
                     'Complete payment in the window…'
