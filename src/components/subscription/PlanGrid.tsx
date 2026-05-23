@@ -6,7 +6,7 @@ import {
   parseFeatureCsv,
 } from '@/pages/user/userSubscription.helpers';
 import type { SubscriptionCatalogPlan } from '@/types';
-import { CheckCircle2, Loader2, Pencil } from 'lucide-react';
+import { CheckCircle2, Loader2 } from 'lucide-react';
 
 export type PlanGridProps =
   | {
@@ -131,27 +131,7 @@ export default function PlanGrid(props: PlanGridProps) {
             )}
 
             {showButton &&
-              (isAdmin ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-6 w-full"
-                  disabled={isThisBusy && isPending}
-                  onClick={() => onEdit?.(plan.id)}
-                >
-                  {isThisBusy && isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving…
-                    </>
-                  ) : (
-                    <>
-                      <Pencil className="mr-2 h-4 w-4" />
-                      Edit name and features
-                    </>
-                  )}
-                </Button>
-              ) : (
+              (isAdmin ? null : (
                 <Button
                   variant={
                     isCurrent ? 'outline' : yearly ? 'default' : 'outline'

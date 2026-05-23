@@ -1,4 +1,3 @@
-import { PlanFormModal } from '@/components/admin/PlanFormModal';
 import PlanGrid from '@/components/subscription/PlanGrid';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAdminSubscriptions } from '@/hooks/useAdminSubscriptions';
@@ -54,7 +53,8 @@ const AdminSubscriptions = () => {
                 className="rounded-xl border bg-card p-5"
               >
                 <p className="text-sm text-muted-foreground">
-                  {row.name} subscribers
+                  <span className="font-bold text-gold">{row.name}</span>{' '}
+                  subscribers
                 </p>
                 <p className="mt-1 text-2xl font-bold">
                   {Number(row.count) || 0}
@@ -76,14 +76,6 @@ const AdminSubscriptions = () => {
             onEdit={openEdit}
           />
         </section>
-
-        <PlanFormModal
-          open={modalOpen}
-          onClose={closeModal}
-          plan={editingPlan}
-          onSave={savePlan}
-          isSaving={isSaving}
-        />
       </div>
     </AdminLayout>
   );
