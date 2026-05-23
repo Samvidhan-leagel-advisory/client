@@ -1,6 +1,11 @@
 import { env } from '@/config/env';
 import { ROUTES } from '@/constants/routes';
-import { clearTokens, getAccessToken, getRefreshToken, setTokens } from '@/lib/auth-token';
+import {
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+  setTokens,
+} from '@/lib/auth-token';
 import { getCookie, resetCookies } from '@/lib/helpers';
 import { queryClient } from '@/lib/query-client';
 import axios from 'axios';
@@ -11,7 +16,8 @@ const ACTIVE_ROLE_COOKIE = 'x-active-role';
 function isAndroidNativeShell() {
   if (typeof window === 'undefined') return false;
   return (
-    window.__samvidhanNativeApp === true && window.__samvidhanNativePlatform === 'android'
+    window.__samvidhanNativeApp === true &&
+    window.__samvidhanNativePlatform === 'android'
   );
 }
 
@@ -60,7 +66,7 @@ const isRefreshRequest = (config) => config.url === routes.REFRESH_TOKEN.URL;
 
 const redirectToLogin = async (requestUrl = '') => {
   queryClient.clear();
-  const isAdminRequest = requestUrl.startsWith('/api/admin/');
+  const isAdminRequest = requestUrl.startsWith('/admin/');
 
   try {
     let logoutUrl = env.apiBaseUrl
@@ -75,7 +81,9 @@ const redirectToLogin = async (requestUrl = '') => {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        ...(getAccessToken() ? { Authorization: `Bearer ${getAccessToken()}` } : {}),
+        ...(getAccessToken()
+          ? { Authorization: `Bearer ${getAccessToken()}` }
+          : {}),
       },
     });
   } catch {
