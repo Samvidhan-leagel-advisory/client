@@ -27,15 +27,25 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
           <BrandLogo size="md" textVariant="header" />
 
           <nav className="hidden items-center gap-1 md:flex">
-            {PUBLIC_NAV_LINKS.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${location.pathname === l.to ? 'text-foreground' : 'text-muted-foreground'}`}
-              >
-                {l.label}
-              </Link>
-            ))}
+            {PUBLIC_NAV_LINKS.map((l) =>
+              l.to.includes('#') ? (
+                <a
+                  key={l.to}
+                  href={l.to}
+                  className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted text-muted-foreground"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${location.pathname === l.to ? 'text-foreground' : 'text-muted-foreground'}`}
+                >
+                  {l.label}
+                </Link>
+              )
+            )}
           </nav>
 
           <div className="hidden items-center gap-2 md:flex">
@@ -59,16 +69,27 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
         {mobileOpen && (
           <div className="border-t bg-card p-4 md:hidden">
             <nav className="flex flex-col gap-1">
-              {PUBLIC_NAV_LINKS.map((l) => (
-                <Link
-                  key={l.to}
-                  to={l.to}
-                  onClick={() => setMobileOpen(false)}
-                  className={`rounded-md px-3 py-2.5 text-sm font-medium ${location.pathname === l.to ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
-                >
-                  {l.label}
-                </Link>
-              ))}
+              {PUBLIC_NAV_LINKS.map((l) =>
+                l.to.includes('#') ? (
+                  <a
+                    key={l.to}
+                    href={l.to}
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground"
+                  >
+                    {l.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => setMobileOpen(false)}
+                    className={`rounded-md px-3 py-2.5 text-sm font-medium ${location.pathname === l.to ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
+                  >
+                    {l.label}
+                  </Link>
+                )
+              )}
               <div className="mt-3 flex flex-col gap-2 border-t pt-3">
                 <Button variant="outline" asChild>
                   <Link to={ROUTES.login}>Log In</Link>
