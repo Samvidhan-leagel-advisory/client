@@ -32,7 +32,7 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
                 <a
                   key={l.to}
                   href={l.to}
-                  className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted text-muted-foreground"
+                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
                 >
                   {l.label}
                 </a>
@@ -90,12 +90,9 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
                   </Link>
                 )
               )}
-              <div className="mt-3 flex flex-col gap-2 border-t pt-3">
-                <Button variant="outline" asChild>
+              <div className="mt-3 flex flex-col gap-2 pt-3">
+                <Button variant="default" asChild>
                   <Link to={ROUTES.login}>Log In</Link>
-                </Button>
-                <Button asChild>
-                  <Link to={ROUTES.register}>Get Started</Link>
                 </Button>
               </div>
             </nav>
@@ -121,22 +118,34 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
               <h4 className="mb-3 text-sm font-semibold text-gold">Platform</h4>
               <ul className="space-y-2 text-sm text-primary-foreground/70">
                 <li>
-                  <Link to={ROUTES.home} className="hover:text-primary-foreground">
+                  <Link
+                    to={ROUTES.home}
+                    className="hover:text-primary-foreground"
+                  >
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link to={ROUTES.faq} className="hover:text-primary-foreground">
+                  <Link
+                    to={ROUTES.faq}
+                    className="hover:text-primary-foreground"
+                  >
                     FAQ
                   </Link>
                 </li>
                 <li>
-                  <a href="/#case-flow" className="hover:text-primary-foreground">
+                  <a
+                    href="/#case-flow"
+                    className="hover:text-primary-foreground"
+                  >
                     Case flow
                   </a>
                 </li>
                 <li>
-                  <Link to={ROUTES.about} className="hover:text-primary-foreground">
+                  <Link
+                    to={ROUTES.about}
+                    className="hover:text-primary-foreground"
+                  >
                     About
                   </Link>
                 </li>
@@ -146,7 +155,10 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
               <h4 className="mb-3 text-sm font-semibold text-gold">Legal</h4>
               <ul className="space-y-2 text-sm text-primary-foreground/70">
                 <li>
-                  <Link to={ROUTES.terms} className="hover:text-primary-foreground">
+                  <Link
+                    to={ROUTES.terms}
+                    className="hover:text-primary-foreground"
+                  >
                     Terms & conditions
                   </Link>
                 </li>
