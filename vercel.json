@@ -4,8 +4,8 @@
   "outputDirectory": "dist",
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://service-samvidhan-1079164039353.asia-south1.run.app/api/$1"
+      "src": "/(auth|users|cases|admin|assets|lawyers|subscriptions|razorpay)(.*)",
+      "dest": "https://api.samvidhanadvisory.com/$1$2"
     },
     {
       "handle": "filesystem"
