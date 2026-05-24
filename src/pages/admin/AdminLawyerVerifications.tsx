@@ -2,11 +2,11 @@ import {
   getAdminLawyerVerifications,
   updateLawyerRoleStatus,
 } from '@/api-client';
-import { path } from '@/constants';
 import { PaginationControls } from '@/components/PaginationControls';
 import { PracticeAreaBadge } from '@/components/StatusBadge';
 import { CasesTableSkeleton } from '@/components/skeletons/CasesTableSkeleton';
 import { Button } from '@/components/ui/button';
+import { path } from '@/constants';
 import { useToast } from '@/hooks/use-toast';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { PAGE_SIZE } from '@/lib/mock-data';
@@ -85,9 +85,9 @@ const AdminLawyerVerifications = () => {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Lawyer Verifications</h1>
+          <h1 className="text-2xl font-bold">Role Requests</h1>
           <p className="mt-1 text-muted-foreground">
-            Review and verify new lawyer registrations.
+            Review and verify new role requests.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ const AdminLawyerVerifications = () => {
             <CheckCircle className="mx-auto mb-3 h-10 w-10 text-green-500" />
             <p className="font-medium">All caught up!</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              No pending lawyer verifications.
+              No pending role requests.
             </p>
           </div>
         ) : (

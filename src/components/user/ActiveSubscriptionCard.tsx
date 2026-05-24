@@ -52,9 +52,7 @@ function ActiveSubscriptionBody({
     !subscription.razorpaySubscriptionId &&
     Boolean(subscription.razorpayOrderId);
   const refId =
-    subscription.razorpaySubscriptionId ??
-    subscription.razorpayOrderId ??
-    '—';
+    subscription.razorpaySubscriptionId ?? subscription.razorpayOrderId ?? '—';
   const price = subscription.subscriptionPlan?.priceInr
     ? Number(subscription.subscriptionPlan.priceInr)
     : null;
@@ -105,7 +103,8 @@ function ActiveSubscriptionBody({
       </div>
       {isCancelledAtPeriodEnd && (
         <p className="text-xs text-amber-700">
-          User cancelled their subscription. Access continues until the period ends.
+          User cancelled their subscription. Access continues until the period
+          ends.
         </p>
       )}
       <div className="break-all font-mono text-xs text-muted-foreground">

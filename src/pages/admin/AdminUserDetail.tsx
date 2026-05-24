@@ -60,9 +60,7 @@ const AdminUserDetail = () => {
   const total = pagination?.total ?? 0;
   const casesLoading = isFetching;
 
-  const activeSubscription = payments.rows.find(
-    (r) => r.status === 'active'
-  );
+  const activeSubscription = payments.rows.find((r) => r.status === 'active');
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -80,60 +78,60 @@ const AdminUserDetail = () => {
         <div className="rounded-xl border bg-card p-4 sm:p-6">
           <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start">
             <div className="flex min-w-0 flex-1 items-start gap-4">
-            <WithShimmer
-              loading={isLoading}
-              className="h-14 w-14 shrink-0 rounded-full"
-            >
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy text-lg font-bold text-gold">
-                {userData?.avatarUrl ? (
-                  <img
-                    src={userData.avatarUrl}
-                    alt={userData.fullName ?? 'User'}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span>
-                    {userData?.fullName?.charAt(0).toUpperCase() ?? '?'}
-                  </span>
-                )}
-              </div>
-            </WithShimmer>
-            <div className="min-w-0 flex-1">
-              <WithShimmer loading={isLoading} className="h-7 w-48">
-                <h1 className="text-xl font-bold">{userData?.fullName}</h1>
-              </WithShimmer>
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                {isLoading ? (
-                  <>
-                    <WithShimmer loading className="h-4 w-40" />
-                    <WithShimmer loading className="h-4 w-28" />
-                    <WithShimmer loading className="h-4 w-36" />
-                  </>
-                ) : (
-                  <>
-                    <span className="flex min-w-0 max-w-full items-center gap-1 break-all">
-                      <Mail className="h-3.5 w-3.5 shrink-0" />
-                      {userData?.email || '-'}
+              <WithShimmer
+                loading={isLoading}
+                className="h-14 w-14 shrink-0 rounded-full"
+              >
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy text-lg font-bold text-gold">
+                  {userData?.avatarUrl ? (
+                    <img
+                      src={userData.avatarUrl}
+                      alt={userData.fullName ?? 'User'}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span>
+                      {userData?.fullName?.charAt(0).toUpperCase() ?? '?'}
                     </span>
-                    {userData?.phone && (
-                      <span className="flex min-w-0 items-center gap-1">
-                        <Phone className="h-3.5 w-3.5 shrink-0" />
-                        {userData.phone}
+                  )}
+                </div>
+              </WithShimmer>
+              <div className="min-w-0 flex-1">
+                <WithShimmer loading={isLoading} className="h-7 w-48">
+                  <h1 className="text-xl font-bold">{userData?.fullName}</h1>
+                </WithShimmer>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                  {isLoading ? (
+                    <>
+                      <WithShimmer loading className="h-4 w-40" />
+                      <WithShimmer loading className="h-4 w-28" />
+                      <WithShimmer loading className="h-4 w-36" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="flex min-w-0 max-w-full items-center gap-1 break-all">
+                        <Mail className="h-3.5 w-3.5 shrink-0" />
+                        {userData?.email || '-'}
                       </span>
-                    )}
-                    {userData?.createdAt && (
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5 shrink-0" />
-                        Joined{' '}
-                        {new Date(userData.createdAt).toLocaleDateString(
-                          'en-IN'
-                        )}
-                      </span>
-                    )}
-                  </>
-                )}
+                      {userData?.phone && (
+                        <span className="flex min-w-0 items-center gap-1">
+                          <Phone className="h-3.5 w-3.5 shrink-0" />
+                          {userData.phone}
+                        </span>
+                      )}
+                      {userData?.createdAt && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5 shrink-0" />
+                          Joined{' '}
+                          {new Date(userData.createdAt).toLocaleDateString(
+                            'en-IN'
+                          )}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
             </div>
             {id && (
               <Button

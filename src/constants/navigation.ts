@@ -55,7 +55,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Users', to: ROUTES.admin.users, icon: Users },
   { label: 'Lawyers', to: ROUTES.admin.lawyers, icon: UserCheck },
   {
-    label: 'Lawyer Verifications',
+    label: 'Role Requests',
     to: ROUTES.admin.lawyerVerifications,
     icon: ShieldCheck,
   },

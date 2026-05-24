@@ -139,7 +139,10 @@ const AdminCaseDetail = () => {
   const showCaseActions = ['lawyer_assigned', 'under_review'].includes(
     caseData?.status
   );
-  const showBookSession = isLawyerAssigned && !caseData?.caseSessionRequest && ['lawyer_assigned', 'under_review'].includes(caseData?.status ?? '');
+  const showBookSession =
+    isLawyerAssigned &&
+    !caseData?.caseSessionRequest &&
+    ['lawyer_assigned', 'under_review'].includes(caseData?.status ?? '');
 
   if (isLoading) {
     return (
@@ -408,9 +411,7 @@ const AdminCaseDetail = () => {
                 {/* Documents — always visible */}
                 <button
                   type="button"
-                  onClick={() =>
-                    navigate(path.adminCaseDocuments(id || ''))
-                  }
+                  onClick={() => navigate(path.adminCaseDocuments(id || ''))}
                   className="group flex w-full items-center gap-3 px-5 py-3 transition-colors hover:bg-muted/50"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
@@ -445,11 +446,7 @@ const AdminCaseDetail = () => {
 
                 {showCaseActions && (
                   <Link
-                    to={
-                      id
-                        ? path.caseInternalNotes(id)
-                        : '#'
-                    }
+                    to={id ? path.caseInternalNotes(id) : '#'}
                     className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-muted/50"
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
