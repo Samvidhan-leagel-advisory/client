@@ -1,5 +1,6 @@
 import { getAdminUserCases, getAdminUserDetails } from '@/api-client';
 import { Button } from '@/components/ui/button';
+import { ActiveSubscriptionCard } from '@/components/user/ActiveSubscriptionCard';
 import { UserCasesTable } from '@/components/user/UserCasesTable';
 import { UserPaymentsTable } from '@/components/user/UserPaymentsTable';
 import WithShimmer from '@/components/WithShimmer';
@@ -58,6 +59,10 @@ const AdminUserDetail = () => {
   const totalPages = pagination?.totalPages ?? 1;
   const total = pagination?.total ?? 0;
   const casesLoading = isFetching;
+
+  const activeSubscription = payments.rows.find(
+    (r) => r.status === 'active'
+  );
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -143,6 +148,11 @@ const AdminUserDetail = () => {
             )}
           </div>
         </div>
+
+        <ActiveSubscriptionCard
+          subscription={activeSubscription}
+          isLoading={payments.isFetching && payments.rows.length === 0}
+        />
 
         {/* Cases */}
         <div>
