@@ -16,15 +16,14 @@ import {
 } from '@/hooks/useCaseSessionRequestDisplay';
 import {
   CalendarClock,
-  CheckCircle,
   CheckCircle2,
+  CheckCircle,
   Clock,
   ExternalLink,
   Loader2,
   Video,
   XCircle,
 } from 'lucide-react';
-import { useCountdown } from '@/hooks/use-countdown';
 import { useState } from 'react';
 
 export type CaseMeetingUriProps = {
@@ -76,10 +75,7 @@ export const CaseMeetingUri = ({
     scheduledFormatted,
     callTypeLabel,
     statusHint,
-    requestedAt,
   } = display;
-
-  const countdown = useCountdown(isAccepted ? requestedAt : null);
 
   const showWithdraw =
     isPending &&
@@ -244,17 +240,7 @@ export const CaseMeetingUri = ({
               </Button>
             ) : null}
 
-            {isAccepted && countdown ? (
-              <div className="flex shrink-0 items-center gap-1.5 rounded-lg border border-amber-200/60 bg-amber-50/50 px-3 py-2 dark:border-amber-900/40 dark:bg-amber-950/20 sm:self-center">
-                <Clock className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
-                <span className="font-mono text-xs font-semibold tabular-nums text-amber-800 dark:text-amber-200">
-                  {countdown.d > 0 && `${countdown.d}d `}
-                  {String(countdown.h).padStart(2, '0')}:
-                  {String(countdown.m).padStart(2, '0')}:
-                  {String(countdown.s).padStart(2, '0')}
-                </span>
-              </div>
-            ) : meetingLink && isAccepted ? (
+            {meetingLink && isAccepted ? (
               <a
                 href={meetingLink}
                 target="_blank"
@@ -323,9 +309,7 @@ export const CaseMeetingUri = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isAdminRemoving}>
-              Keep
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isAdminRemoving}>Keep</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={isAdminRemoving}
