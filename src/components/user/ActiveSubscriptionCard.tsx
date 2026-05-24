@@ -1,24 +1,31 @@
 import WithShimmer from '@/components/WithShimmer';
 import type { ActiveSubscriptionView } from '@/types';
-import { CreditCard } from 'lucide-react';
+import { AlertCircle, CreditCard } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 type ActiveSubscriptionCardProps = {
   subscription: ActiveSubscriptionView | null | undefined;
   /** True while the source list is still loading and we have nothing to show yet. */
   isLoading?: boolean;
+  /** Optional CTA rendered in the card header (e.g. "Manage subscription"). */
+  action?: ReactNode;
 };
 
 export function ActiveSubscriptionCard({
   subscription,
   isLoading = false,
+  action,
 }: ActiveSubscriptionCardProps) {
   return (
     <div className="rounded-xl border bg-card p-4 sm:p-5">
-      <div className="mb-3 flex items-center gap-2">
-        <CreditCard className="h-4 w-4 text-muted-foreground" />
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Active Subscription
-        </h2>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <CreditCard className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            Active Subscription
+          </h2>
+        </div>
+        {action ? <div className="shrink-0">{action}</div> : null}
       </div>
 
       {isLoading ? (
@@ -84,12 +91,15 @@ function ActiveSubscriptionBody({
         </span>
       </div>
       {cancelledAtPeriodEnd && (
-        <p className="text-xs text-amber-700">
-          Subscription cancelled. Access continues until the period ends.
-        </p>
+        <div className="mt-1 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span>
+            Subscription cancelled. Access continues until the period ends.
+          </span>
+        </div>
       )}
       {refId && (
-        <div className="break-all font-mono text-xs text-muted-foreground">
+        <div className="break-all pt-1 font-mono text-xs text-muted-foreground/70">
           {refId}
         </div>
       )}

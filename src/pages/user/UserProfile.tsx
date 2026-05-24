@@ -62,19 +62,24 @@ const UserProfile = () => {
 
         {!isLawyer && (
           <>
-            <div className="space-y-3">
-              <ActiveSubscriptionCard
-                subscription={subscription}
-                isLoading={isSubscriptionLoading}
-              />
-              {!isSubscriptionLoading && (
-                <Button variant="outline" size="sm" asChild>
-                  <Link to={ROUTES.user.subscription}>
-                    {subscription ? 'Manage Subscription' : 'View plans'}
-                  </Link>
-                </Button>
-              )}
-            </div>
+            <ActiveSubscriptionCard
+              subscription={subscription}
+              isLoading={isSubscriptionLoading}
+              action={
+                !isSubscriptionLoading ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    asChild
+                    className="h-7 px-2 text-xs font-medium"
+                  >
+                    <Link to={ROUTES.user.subscription}>
+                      {subscription ? 'Manage' : 'View plans'}
+                    </Link>
+                  </Button>
+                ) : null
+              }
+            />
 
             {showAdvisoryCardNotice && subscription ? (
               <DownloadSamvidhanCard subscriptionPlan={subscription} />
