@@ -23,6 +23,18 @@ import type {
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
+const localTodayIso = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+};
+
+const localNowTime = () => {
+  const d = new Date();
+  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+};
+
 export const SessionBookingModal = ({
   bookingOpen,
   setBookingOpen,
@@ -33,6 +45,8 @@ export const SessionBookingModal = ({
   const { toast } = useToast();
   const [preferredDate, setPreferredDate] = useState('');
   const [preferredTime, setPreferredTime] = useState('');
+  const todayIso = localTodayIso();
+  const minTime = preferredDate === todayIso ? localNowTime() : undefined;
 
   const isAdminRequest = raisedBy === 'admin';
 
@@ -66,6 +80,23 @@ export const SessionBookingModal = ({
   });
 
   const handleBookSession = async () => {
+    if (preferredDate < todayIso) {
+      toast({
+        title: 'Invalid date',
+        description: 'Please choose today or a future date.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (preferredDate === todayIso && preferredTime < localNowTime()) {
+      toast({
+        title: 'Invalid time',
+        description: 'Please choose a time later than now.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       await submitSessionRequest();
       toast({
@@ -101,7 +132,18 @@ export const SessionBookingModal = ({
             <Input
               type="date"
               value={preferredDate}
-              onChange={(e) => setPreferredDate(e.target.value)}
+              min={todayIso}
+              onChange={(e) => {
+                const next = e.target.value;
+                setPreferredDate(next);
+                if (
+                  next === todayIso &&
+                  preferredTime &&
+                  preferredTime < localNowTime()
+                ) {
+                  setPreferredTime('');
+                }
+              }}
             />
           </div>
           <div className="space-y-2">
@@ -109,6 +151,8 @@ export const SessionBookingModal = ({
             <Input
               type="time"
               value={preferredTime}
+              min={minTime}
+              disabled={!preferredDate}
               onChange={(e) => setPreferredTime(e.target.value)}
             />
           </div>
