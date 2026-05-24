@@ -393,13 +393,16 @@ export interface AdminPaymentListPlanNested {
   billingCycle?: string | null;
 }
 
-/** GET /api/admin/payments — one row (Razorpay subscription list). */
+/** GET /api/admin/payments — one row (Razorpay subscription or one-time order). */
 export interface AdminPaymentsSubscriptionRow {
   id: string;
-  razorpaySubscriptionId: string;
+  /** Populated for recurring (monthly/yearly) plans. NULL for lifetime one-time plans. */
+  razorpaySubscriptionId: string | null;
+  /** Populated for lifetime one-time plans (Razorpay Order). NULL for recurring plans. */
+  razorpayOrderId?: string | null;
   status: string;
-  currentPeriodStart?: string;
-  currentPeriodEnd?: string;
+  currentPeriodStart?: string | null;
+  currentPeriodEnd?: string | null;
   createdAt: string;
   updatedAt?: string;
   user?: AdminPaymentListUserNested | null;

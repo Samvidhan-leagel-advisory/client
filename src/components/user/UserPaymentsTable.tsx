@@ -20,6 +20,20 @@ const MOBILE_SKELETON_KEYS = ['a', 'b', 'c'] as const;
 const formatInDate = (iso?: string | null) =>
   iso ? new Date(iso).toLocaleDateString('en-IN') : '—';
 
+/** Lifetime one-time → razorpayOrderId. Recurring → razorpaySubscriptionId. */
+const paymentRef = (row: AdminPaymentsSubscriptionRow) => {
+  if (row.razorpaySubscriptionId)
+    return { id: row.razorpaySubscriptionId, kind: 'Subscription' as const };
+  if (row.razorpayOrderId)
+    return { id: row.razorpayOrderId, kind: 'Lifetime' as const };
+  return { id: null, kind: null };
+};
+
+const typeBadgeClass = (kind: 'Subscription' | 'Lifetime') =>
+  kind === 'Lifetime'
+    ? 'bg-purple-50 text-purple-700'
+    : 'bg-blue-50 text-blue-700';
+
 const rowStatusClass = (status: string) => {
   const s = status.toLowerCase();
   if (s === 'active' || s === 'success' || s === 'captured') {
@@ -141,13 +155,23 @@ export function UserPaymentsTable({
               const raw = (row.status ?? '').toLowerCase();
               const amountInr = Number(plan?.priceInr);
               const amount = Number.isFinite(amountInr) ? amountInr : 0;
+              const ref = paymentRef(row);
               return (
                 <li
                   key={row.id}
                   className="min-w-0 rounded-xl border bg-card p-4 shadow-sm"
                 >
-                  <div className="font-mono text-xs text-muted-foreground">
-                    {row.razorpaySubscriptionId}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="break-all font-mono text-xs text-muted-foreground">
+                      {ref.id ?? '—'}
+                    </span>
+                    {ref.kind && (
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${typeBadgeClass(ref.kind)}`}
+                      >
+                        {ref.kind}
+                      </span>
+                    )}
                   </div>
                   {!hideUserColumn && row.user?.fullName?.trim() ? (
                     <div className="mt-1 font-medium">
@@ -184,7 +208,10 @@ export function UserPaymentsTable({
               <thead className="border-b bg-muted/50">
                 <tr>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Subscription ID
+                    Payment Ref
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    Type
                   </th>
                   {!hideUserColumn ? (
                     <th className="px-4 py-3 text-left font-medium text-muted-foreground">
@@ -216,13 +243,25 @@ export function UserPaymentsTable({
                   const plan = row.subscriptionPlan;
                   const raw = (row.status ?? '').toLowerCase();
                   const amountInr = Number(plan?.priceInr);
+                  const ref = paymentRef(row);
                   return (
                     <tr
                       key={row.id}
                       className="border-b last:border-0 hover:bg-muted/30"
                     >
-                      <td className="px-4 py-3 font-mono text-xs">
-                        {row.razorpaySubscriptionId}
+                      <td className="break-all px-4 py-3 font-mono text-xs">
+                        {ref.id ?? '—'}
+                      </td>
+                      <td className="px-4 py-3">
+                        {ref.kind ? (
+                          <span
+                            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${typeBadgeClass(ref.kind)}`}
+                          >
+                            {ref.kind}
+                          </span>
+                        ) : (
+                          '—'
+                        )}
                       </td>
                       {!hideUserColumn ? (
                         <td className="px-4 py-3">

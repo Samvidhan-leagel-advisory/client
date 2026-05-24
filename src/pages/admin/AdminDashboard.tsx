@@ -188,7 +188,10 @@ const AdminDashboard = () => {
               <thead className="border-b bg-muted/50">
                 <tr>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Subscription ID
+                    Payment Ref
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    Type
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                     User
@@ -214,47 +217,63 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {recentPayments.map((p) => (
-                  <tr
-                    key={p.id}
-                    className="border-b last:border-0 hover:bg-muted/30"
-                  >
-                    <td className="px-4 py-3 font-mono text-xs">
-                      {p.razorpaySubscriptionId}
-                    </td>
-                    <td className="px-4 py-3">{p.user.fullName || '-'}</td>
-                    <td className="px-4 py-3">
-                      {p.subscriptionPlan.name || '-'}
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                      {p.subscriptionPlan.billingCycle || '-'}
-                    </td>
-                    <td className="px-4 py-3 font-medium">
-                      ₹
-                      {p.subscriptionPlan.priceInr.toLocaleString('en-IN') ||
-                        '-'}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${p.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}
-                      >
-                        {p.status}
-                      </span>
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                      {p.currentPeriodEnd
-                        ? new Date(p.currentPeriodEnd).toLocaleDateString(
-                            'en-IN'
-                          )
-                        : '-'}
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell">
-                      {p.createdAt
-                        ? new Date(p.createdAt).toLocaleDateString('en-IN')
-                        : '-'}
-                    </td>
-                  </tr>
-                ))}
+                {recentPayments.map((p) => {
+                  const isLifetime =
+                    !p.razorpaySubscriptionId && Boolean(p.razorpayOrderId);
+                  const refId =
+                    p.razorpaySubscriptionId ?? p.razorpayOrderId ?? '—';
+                  return (
+                    <tr
+                      key={p.id}
+                      className="border-b last:border-0 hover:bg-muted/30"
+                    >
+                      <td className="break-all px-4 py-3 font-mono text-xs">
+                        {refId}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${isLifetime ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'}`}
+                        >
+                          {isLifetime ? 'Lifetime' : 'Subscription'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">{p.user?.fullName || '-'}</td>
+                      <td className="px-4 py-3">
+                        {p.subscriptionPlan?.name || '-'}
+                      </td>
+                      <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
+                        {p.subscriptionPlan?.billingCycle || '-'}
+                      </td>
+                      <td className="px-4 py-3 font-medium">
+                        ₹
+                        {p.subscriptionPlan?.priceInr
+                          ? Number(p.subscriptionPlan.priceInr).toLocaleString(
+                              'en-IN'
+                            )
+                          : '-'}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${p.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}
+                        >
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
+                        {p.currentPeriodEnd
+                          ? new Date(p.currentPeriodEnd).toLocaleDateString(
+                              'en-IN'
+                            )
+                          : '-'}
+                      </td>
+                      <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell">
+                        {p.createdAt
+                          ? new Date(p.createdAt).toLocaleDateString('en-IN')
+                          : '-'}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {isLoading && <CasesTableSkeleton length={3} />}
               </tbody>
             </table>
