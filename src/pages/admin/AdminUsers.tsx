@@ -115,7 +115,7 @@ const AdminUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {users.length === 0 && (
+              {users.length === 0 && !isFetching && (
                 <tr>
                   <td
                     colSpan={6}
