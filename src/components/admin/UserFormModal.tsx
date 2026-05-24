@@ -27,7 +27,6 @@ export const UserFormModal = ({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
   const { errors, setErrors, clearError, hasErrors, resetErrors } =
     useFormErrors();
 
@@ -37,7 +36,6 @@ export const UserFormModal = ({
     setName('');
     setEmail('');
     setPhone('');
-    setPassword('');
     resetErrors();
   };
 
@@ -47,7 +45,6 @@ export const UserFormModal = ({
       setName(user.fullName ?? user.name ?? '');
       setEmail(user.email ?? '');
       setPhone(user.phone ?? '');
-      setPassword('');
       resetErrors();
     } else {
       resetForm();
@@ -57,12 +54,8 @@ export const UserFormModal = ({
   // --- Mutations ---
 
   const { mutateAsync: createUser, isPending: isCreating } = useMutation({
-    mutationFn: (body: {
-      fullName: string;
-      email: string;
-      phone: string;
-      password?: string;
-    }) => createAdminUser(body),
+    mutationFn: (body: { fullName: string; email: string; phone: string }) =>
+      createAdminUser(body),
   });
 
   const { mutateAsync: editUser, isPending: isUpdating } = useMutation({
@@ -85,9 +78,6 @@ export const UserFormModal = ({
       if (phoneError) newErrors.phone = phoneError;
     }
 
-    if (!isEditMode && !password.trim())
-      newErrors.password = 'Password is required';
-
     if (hasErrors(newErrors)) {
       setErrors(newErrors);
       return false;
@@ -108,7 +98,7 @@ export const UserFormModal = ({
 
     const response = isEditMode
       ? await editUser({ fullName: trimmed.fullName, phone: trimmed.phone })
-      : await createUser({ ...trimmed, password: password.trim() });
+      : await createUser({ ...trimmed });
 
     await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     onSave(trimmed, response?.data?.message);
@@ -155,29 +145,6 @@ export const UserFormModal = ({
               <p className="text-xs text-destructive">{errors.email}</p>
             )}
           </div>
-
-          {/* Password (create mode only) */}
-          {!isEditMode && (
-            <div className="space-y-1.5">
-              <Label>
-                Password{' '}
-                <span className="text-xs text-muted-foreground">*</span>
-              </Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  clearError('password');
-                }}
-                placeholder="Enter password"
-                required
-              />
-              {errors.password && (
-                <p className="text-xs text-destructive">{errors.password}</p>
-              )}
-            </div>
-          )}
 
           {/* Phone */}
           <div className="space-y-2">
