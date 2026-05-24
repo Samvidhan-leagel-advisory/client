@@ -160,7 +160,12 @@ const AdminSessionRequests = () => {
                           <p>
                             <span className="text-muted-foreground">User:</span>{' '}
                             <span className="font-medium">
-                              {req.case?.user?.fullName}
+                              <Link
+                                to={path.adminUser(req.case?.user?.id ?? '')}
+                                className="hover:text-gold hover:underline"
+                              >
+                                {req.case?.user?.fullName}
+                              </Link>
                             </span>
                           </p>
                           <p>
@@ -168,7 +173,14 @@ const AdminSessionRequests = () => {
                               Lawyer:
                             </span>{' '}
                             <span className="font-medium">
-                              {req.case?.assignedLawyer?.user?.fullName}
+                              <Link
+                                to={path.adminUser(
+                                  req.case?.assignedLawyer?.user?.id ?? ''
+                                )}
+                                className="hover:text-gold hover:underline"
+                              >
+                                {req.case?.assignedLawyer?.user?.fullName}
+                              </Link>
                             </span>
                           </p>
                           <p>

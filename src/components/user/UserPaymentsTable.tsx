@@ -14,6 +14,7 @@ import { PAGE_SIZE } from '@/lib/mock-data';
 import type { AdminPaymentsSubscriptionRow } from '@/types';
 import { Search } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
+import { Link } from 'react-router-dom';
 
 const MOBILE_SKELETON_KEYS = ['a', 'b', 'c'] as const;
 
@@ -265,7 +266,12 @@ export function UserPaymentsTable({
                       </td>
                       {!hideUserColumn ? (
                         <td className="px-4 py-3">
-                          {row.user?.fullName?.trim() || '—'}
+                          <Link
+                            to={`/admin/users/${row.user?.id}`}
+                            className="hover:text-gold hover:underline"
+                          >
+                            {row.user?.fullName?.trim() || '—'}
+                          </Link>
                         </td>
                       ) : null}
                       <td className="px-4 py-3 text-muted-foreground">

@@ -183,9 +183,16 @@ const AdminCases = () => {
                       </Link>
                     </td>
                     <td className="hidden whitespace-nowrap px-4 py-3 sm:table-cell">
-                      <Link to={path.adminLawyer(c.assignedLawyer?.id)} className="hover:text-gold hover:underline">
-                      {c.assignedLawyer?.user?.fullName || '—'}
-                      </Link>
+                      {c.assignedLawyer?.id ? (
+                        <Link
+                          to={path.adminLawyer(c.assignedLawyer.id)}
+                          className="hover:text-gold hover:underline"
+                        >
+                          {c.assignedLawyer.user?.fullName || '—'}
+                        </Link>
+                      ) : (
+                        '—'
+                      )}
                     </td>
                     <td className="hidden whitespace-nowrap px-4 py-3 text-muted-foreground md:table-cell">
                       <PracticeAreaBadge
