@@ -6,11 +6,14 @@ type ActiveSubscriptionCardProps = {
   subscription: AdminPaymentsSubscriptionRow | undefined;
   /** True while the source list is still loading and we have nothing to show yet. */
   isLoading?: boolean;
+  /** Razorpay "cancel at cycle end" — still valid until `currentPeriodEnd`. */
+  isCancelledAtPeriodEnd?: boolean;
 };
 
 export function ActiveSubscriptionCard({
   subscription,
   isLoading = false,
+  isCancelledAtPeriodEnd = false,
 }: ActiveSubscriptionCardProps) {
   return (
     <div className="rounded-xl border bg-card p-4 sm:p-5">
@@ -27,7 +30,10 @@ export function ActiveSubscriptionCard({
           <WithShimmer loading className="h-4 w-64" />
         </div>
       ) : subscription ? (
-        <ActiveSubscriptionBody subscription={subscription} />
+        <ActiveSubscriptionBody
+          subscription={subscription}
+          isCancelledAtPeriodEnd={isCancelledAtPeriodEnd}
+        />
       ) : (
         <p className="text-sm text-muted-foreground">No active subscription.</p>
       )}
@@ -37,8 +43,10 @@ export function ActiveSubscriptionCard({
 
 function ActiveSubscriptionBody({
   subscription,
+  isCancelledAtPeriodEnd,
 }: {
   subscription: AdminPaymentsSubscriptionRow;
+  isCancelledAtPeriodEnd: boolean;
 }) {
   const isLifetime =
     !subscription.razorpaySubscriptionId &&
@@ -50,6 +58,16 @@ function ActiveSubscriptionBody({
   const price = subscription.subscriptionPlan?.priceInr
     ? Number(subscription.subscriptionPlan.priceInr)
     : null;
+  const endDateLabel = subscription.currentPeriodEnd
+    ? new Date(subscription.currentPeriodEnd).toLocaleDateString('en-IN')
+    : '—';
+
+  const statusBadgeClass = isCancelledAtPeriodEnd
+    ? 'bg-amber-50 text-amber-700'
+    : 'bg-green-50 text-green-700';
+  const statusLabel = isCancelledAtPeriodEnd
+    ? 'Cancelling'
+    : subscription.status;
 
   return (
     <div className="space-y-2">
@@ -62,8 +80,10 @@ function ActiveSubscriptionBody({
         >
           {isLifetime ? 'Lifetime' : 'Subscription'}
         </span>
-        <span className="inline-flex rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium capitalize text-green-700">
-          {subscription.status}
+        <span
+          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize ${statusBadgeClass}`}
+        >
+          {statusLabel}
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -78,9 +98,16 @@ function ActiveSubscriptionBody({
         <span>
           {isLifetime
             ? 'No expiry'
-            : `Renews ${subscription.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString('en-IN') : '—'}`}
+            : isCancelledAtPeriodEnd
+              ? `Ends ${endDateLabel}`
+              : `Renews ${endDateLabel}`}
         </span>
       </div>
+      {isCancelledAtPeriodEnd && (
+        <p className="text-xs text-amber-700">
+          User cancelled their subscription. Access continues until the period ends.
+        </p>
+      )}
       <div className="break-all font-mono text-xs text-muted-foreground">
         {refId}
       </div>

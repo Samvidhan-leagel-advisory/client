@@ -16,10 +16,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { ActiveSubscriptionCard } from '@/components/user/ActiveSubscriptionCard';
 import { SessionBookingModal } from '@/components/user/SessionBookingModal';
 import { path } from '@/constants';
 import { useAdminCaseDetails } from '@/hooks/useAdminCaseDetails';
 import { useAdminCaseMutations } from '@/hooks/useAdminCaseMutations';
+import { useUserActiveSubscription } from '@/hooks/useUserActiveSubscription';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import {
   DESCRIPTION_PREVIEW_MAX_WORDS,
@@ -126,6 +128,11 @@ const AdminCaseDetail = () => {
     caseData?.assignedLawyerId ?? caseData?.assignedLawyer?.id;
   const lawyerDisplayName = caseData?.assignedLawyer?.user?.fullName;
   const userId = caseData?.user?.id;
+  const {
+    subscription: userActiveSubscription,
+    isCancelledAtPeriodEnd: userSubscriptionCancelling,
+    isLoading: isUserSubscriptionLoading,
+  } = useUserActiveSubscription(userId);
   const timelineUpdatedAt = caseData?.updatedAt ?? caseData?.createdAt;
   const isLawyerAssigned = caseData?.assignedLawyerId;
 
@@ -373,6 +380,11 @@ const AdminCaseDetail = () => {
 
             {/* Right sidebar — single unified card */}
             <div className="flex flex-col gap-5">
+              <ActiveSubscriptionCard
+                subscription={userActiveSubscription}
+                isCancelledAtPeriodEnd={userSubscriptionCancelling}
+                isLoading={isUserSubscriptionLoading}
+              />
               <Card className="overflow-hidden shadow-sm">
                 {/* Assign Lawyer section */}
                 <div className="px-5 pb-4 pt-5">
