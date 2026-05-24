@@ -19,6 +19,7 @@ import {
 } from '@/lib/caseDescriptionPreview';
 import { getCookie } from '@/lib/helpers';
 import { useQuery } from '@tanstack/react-query';
+import { AudioDescriptionPlayer } from '@/components/AudioDescriptionPlayer';
 import {
   AlertTriangle,
   CalendarDays,
@@ -222,7 +223,7 @@ const CaseDetail = () => {
                     Description
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="px-6 py-5">
+                <CardContent className="px-6 py-5 space-y-4">
                   {rawDescription ? (
                     descriptionIsLong ? (
                       <div>
@@ -242,10 +243,14 @@ const CaseDetail = () => {
                         {rawDescription}
                       </p>
                     )
-                  ) : (
+                  ) : !caseData?.audioDescUrl ? (
                     <p className="text-sm italic text-muted-foreground">
                       No description provided.
                     </p>
+                  ) : null}
+
+                  {caseData?.audioDescUrl && (
+                    <AudioDescriptionPlayer src={caseData.audioDescUrl} />
                   )}
                 </CardContent>
               </Card>

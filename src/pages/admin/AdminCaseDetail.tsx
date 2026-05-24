@@ -28,6 +28,7 @@ import {
   splitWords,
   truncateToWords,
 } from '@/lib/caseDescriptionPreview';
+import { AudioDescriptionPlayer } from '@/components/AudioDescriptionPlayer';
 import {
   AlertTriangle,
   CalendarDays,
@@ -352,7 +353,7 @@ const AdminCaseDetail = () => {
                     Description
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="px-6 py-5">
+                <CardContent className="px-6 py-5 space-y-4">
                   {rawDescription ? (
                     descriptionIsLong ? (
                       <div>
@@ -372,10 +373,14 @@ const AdminCaseDetail = () => {
                         {rawDescription}
                       </p>
                     )
-                  ) : (
+                  ) : !caseData?.audioDescUrl ? (
                     <p className="text-sm italic text-muted-foreground">
                       No description provided.
                     </p>
+                  ) : null}
+
+                  {caseData?.audioDescUrl && (
+                    <AudioDescriptionPlayer src={caseData.audioDescUrl} />
                   )}
                 </CardContent>
               </Card>

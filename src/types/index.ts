@@ -497,6 +497,7 @@ export interface CaseDetails extends Omit<CaseItem, 'assignedLawyer' | 'user'> {
   user?: { id?: string; fullName: string };
   caseSessionRequest?: unknown;
   priority?: 'urgent' | 'high' | 'normal' | 'low';
+  audioDescUrl?: string | null;
 }
 
 export interface Pagination {

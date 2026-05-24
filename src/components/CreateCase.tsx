@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import WithShimmer from '@/components/WithShimmer';
 import { useToast } from '@/hooks/use-toast';
 import { useActiveSubscription } from '@/hooks/useActiveSubscription';
+import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useCategories } from '@/hooks/useCategories';
 import {
   CASE_TITLE_MAX_LENGTH,
@@ -22,8 +23,8 @@ import {
 } from '@/lib/utils';
 import type { UploadedDoc } from '@/types';
 import { useMutation } from '@tanstack/react-query';
-import { AlertTriangle } from 'lucide-react';
-import { useState } from 'react';
+import { AlertTriangle, Mic, MicOff, Trash2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 const uploadFiles = async (files: File[]): Promise<UploadedDoc[]> => {
   const results = await Promise.all(
@@ -41,15 +42,10 @@ const uploadFiles = async (files: File[]): Promise<UploadedDoc[]> => {
 
 type CreateCaseProps = {
   mode: 'user' | 'admin';
-  /** Target userId — required in admin mode. */
   userId?: string;
-  /** Heading shown above the form. */
   title?: string;
-  /** Subtitle/description below the heading. */
   subtitle?: string;
-  /** Submit button label override. */
   submitLabel?: string;
-  /** Called after a successful submission. Receives created case id when available. */
   onSuccess?: (caseId?: string) => void;
 };
 
@@ -64,6 +60,8 @@ export const CreateCase = ({
   const [categoryId, setCategoryId] = useState('');
   const [caseTitle, setCaseTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [descMode, setDescMode] = useState<'text' | 'audio'>('text');
+  const [audioDescUrl, setAudioDescUrl] = useState<string | null>(null);
   const [isEmergency, setIsEmergency] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
@@ -75,6 +73,9 @@ export const CreateCase = ({
     isError: categoriesError,
   } = useCategories();
 
+  const onAudioUrl = useCallback((url: string | null) => setAudioDescUrl(url), []);
+  const audio = useAudioRecorder(onAudioUrl);
+
   const isAdmin = mode === 'admin';
 
   const { mutateAsync, isPending } = useMutation({
@@ -83,7 +84,8 @@ export const CreateCase = ({
       const payload = {
         practiceAreaId: categoryId,
         title: caseTitle.trim(),
-        description: description.trim(),
+        ...(description.trim() ? { description: description.trim() } : {}),
+        ...(audioDescUrl ? { audioDescUrl } : {}),
         isEmergency,
         documents,
       };
@@ -133,7 +135,11 @@ export const CreateCase = ({
     });
   };
 
-  const isFormValid = categoryId && caseTitle.trim() && description.trim();
+  const hasDescription = description.trim() || audioDescUrl;
+  const isFormValid = categoryId && caseTitle.trim() && hasDescription;
+
+  const fmt = (s: number) =>
+    `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -148,19 +154,14 @@ export const CreateCase = ({
           {categoriesLoading && (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {CATEGORY_SKELETON_WIDTHS.map((w, i) => (
-                <div
-                  key={i}
-                  className="rounded-lg border bg-card px-3 py-2.5"
-                >
+                <div key={i} className="rounded-lg border bg-card px-3 py-2.5">
                   <WithShimmer loading className={`h-4 ${w} rounded`} />
                 </div>
               ))}
             </div>
           )}
           {categoriesError && (
-            <p className="text-sm text-destructive">
-              Failed to load categories.
-            </p>
+            <p className="text-sm text-destructive">Failed to load categories.</p>
           )}
           {!categoriesLoading && !categoriesError && (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -194,21 +195,113 @@ export const CreateCase = ({
             required
           />
           <p className="text-xs text-muted-foreground">
-            One line is enough. Put facts and background in detailed
-            description below (max {CASE_TITLE_MAX_LENGTH} characters).
+            One line is enough. Put facts and background in the description below (max{' '}
+            {CASE_TITLE_MAX_LENGTH} characters).
           </p>
         </div>
 
+        {/* Description — toggle between text and audio */}
         <div className="space-y-2">
-          <Label htmlFor="description">Detailed Description</Label>
-          <Textarea
-            id="description"
-            placeholder="Describe your legal issue in detail..."
-            rows={5}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
+          <Label>
+            Description{' '}
+            <span className="font-normal text-muted-foreground">(text or audio)</span>
+          </Label>
+
+          <div className="rounded-lg border bg-card overflow-hidden">
+            {/* Tab header */}
+            <div className="flex border-b">
+              <button
+                type="button"
+                onClick={() => setDescMode('text')}
+                className={`flex-1 py-2 text-sm font-medium transition-colors ${descMode === 'text' ? 'bg-background text-foreground border-b-2 border-gold' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                Text
+              </button>
+              <button
+                type="button"
+                onClick={() => setDescMode('audio')}
+                className={`flex-1 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${descMode === 'audio' ? 'bg-background text-foreground border-b-2 border-gold' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <Mic className="h-3.5 w-3.5" />
+                Audio
+              </button>
+            </div>
+
+            {/* Text panel */}
+            {descMode === 'text' && (
+              <Textarea
+                id="description"
+                placeholder="Describe your legal issue in detail..."
+                rows={4}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="border-0 rounded-none focus-visible:ring-0 resize-none"
+              />
+            )}
+
+            {/* Audio panel */}
+            {descMode === 'audio' && (
+              <div className="p-4 space-y-3">
+                {audio.uploadState === 'done' && audioDescUrl ? (
+                  <div className="flex items-center gap-3">
+                    <audio src={audioDescUrl} controls className="h-9 flex-1 min-w-0" />
+                    <button
+                      type="button"
+                      onClick={audio.clear}
+                      className="shrink-0 text-muted-foreground hover:text-destructive transition-colors"
+                      title="Remove recording"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : audio.isRecording ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-destructive animate-pulse font-medium">
+                      Recording… {fmt(audio.elapsed)} / 2:00
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={audio.stop}
+                      className="gap-1.5"
+                    >
+                      <MicOff className="h-3.5 w-3.5" />
+                      Stop
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      {audio.uploadState === 'uploading'
+                        ? 'Uploading recording…'
+                        : 'Tap record to describe your issue verbally (max 2 min).'}
+                    </p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={audio.start}
+                      disabled={audio.uploadState === 'uploading'}
+                      className="gap-1.5 shrink-0"
+                    >
+                      <Mic className="h-3.5 w-3.5" />
+                      Record
+                    </Button>
+                  </div>
+                )}
+                {audio.uploadState === 'error' && (
+                  <p className="text-xs text-destructive">Upload failed. Try again.</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {!hasDescription && (
+            <p className="text-xs text-destructive">
+              Provide a text or audio description.
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -230,7 +323,6 @@ export const CreateCase = ({
                 checked={isEmergency}
                 onChange={(e) => {
                   const next = e.target.checked;
-                  // Admin can mark emergency on behalf of user without paywall gating.
                   if (next && !isAdmin && !isActive) {
                     setPaywallOpen(true);
                     return;
@@ -252,11 +344,9 @@ export const CreateCase = ({
         <Button
           type="submit"
           className="w-full"
-          disabled={!isFormValid || isPending}
+          disabled={!isFormValid || isPending || audio.isRecording || audio.uploadState === 'uploading'}
         >
-          {isPending
-            ? 'Submitting...'
-            : (submitLabel ?? 'Submit Query')}
+          {isPending ? 'Submitting...' : (submitLabel ?? 'Submit Query')}
         </Button>
       </form>
 
