@@ -1,4 +1,5 @@
 import { ROUTES } from '@/constants';
+import { usePublicHomeNav } from '@/hooks/use-public-home-nav';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 
@@ -68,7 +69,9 @@ export function BrandLogo({
   className,
   imgClassName,
 }: BrandLogoProps) {
+  const { onHomeLinkClick } = usePublicHomeNav();
   const dim = typeof size === 'number' ? size : sizePx[size];
+  const isHomeTarget = to === ROUTES.home || to === '/';
 
   const wordmark =
     showText &&
@@ -115,6 +118,7 @@ export function BrandLogo({
   return (
     <Link
       to={to}
+      onClick={isHomeTarget ? onHomeLinkClick : undefined}
       className={cn(rowClass, className)}
       aria-label="Samvidhan Legal Advisory home"
     >

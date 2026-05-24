@@ -4,6 +4,7 @@ export {
   PUBLIC_NAV_LINKS,
   USER_NAV,
   type NavItem,
+  type PublicNavLink,
 } from './navigation';
 export {
   PATH_PREFIX,

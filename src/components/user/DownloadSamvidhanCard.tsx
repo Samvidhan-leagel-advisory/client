@@ -72,7 +72,7 @@ export const DownloadSamvidhanCard = ({
         ) : (
           <FileDown className="h-3.5 w-3.5" />
         )}
-        {downloading ? 'Generating…' : 'Download PDF'}
+        {downloading ? 'Generating…' : 'Card download'}
       </Button>
     </div>
   );

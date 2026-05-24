@@ -2,14 +2,25 @@ import { getAdminSettings } from '@/api-client';
 import { BrandLogo } from '@/components/BrandLogo';
 import { Button } from '@/components/ui/button';
 import { PUBLIC_NAV_LINKS, ROUTES } from '@/constants';
+import {
+  usePublicHomeNav,
+  useScrollToStateSection,
+} from '@/hooks/use-public-home-nav';
 import { Menu, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+const navLinkClass = (active: boolean) =>
+  `rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${
+    active ? 'text-foreground' : 'text-muted-foreground'
+  }`;
+
 export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { isOnHome, onHomeLinkClick, scrollToSection } = usePublicHomeNav();
   const [settings, setSettings] = useState(null);
+  useScrollToStateSection();
 
   const getSettings = useCallback(async () => {
     const response = await getAdminSettings();
@@ -20,6 +31,13 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
     void getSettings();
   }, [getSettings]);
 
+  useEffect(() => {
+    const scrollTarget = (location.state as { scrollTo?: string } | null)
+      ?.scrollTo;
+    if (scrollTarget) return;
+    window.scrollTo(0, 0);
+  }, [location.pathname, location.state]);
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -27,25 +45,41 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
           <BrandLogo size="md" textVariant="header" />
 
           <nav className="hidden items-center gap-1 md:flex">
-            {PUBLIC_NAV_LINKS.map((l) =>
-              l.to.includes('#') ? (
-                <a
-                  key={l.to}
-                  href={l.to}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
-                >
-                  {l.label}
-                </a>
-              ) : (
+            {PUBLIC_NAV_LINKS.map((l) => {
+              if (l.kind === 'home') {
+                return (
+                  <Link
+                    key="home"
+                    to={ROUTES.home}
+                    onClick={onHomeLinkClick}
+                    className={navLinkClass(isOnHome)}
+                  >
+                    {l.label}
+                  </Link>
+                );
+              }
+              if (l.kind === 'section') {
+                return (
+                  <button
+                    key={l.sectionId}
+                    type="button"
+                    onClick={(e) => scrollToSection(l.sectionId, e)}
+                    className={navLinkClass(false)}
+                  >
+                    {l.label}
+                  </button>
+                );
+              }
+              return (
                 <Link
                   key={l.to}
                   to={l.to}
-                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${location.pathname === l.to ? 'text-foreground' : 'text-muted-foreground'}`}
+                  className={navLinkClass(location.pathname === l.to)}
                 >
                   {l.label}
                 </Link>
-              )
-            )}
+              );
+            })}
           </nav>
 
           <div className="hidden items-center gap-2 md:flex">
@@ -69,27 +103,49 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
         {mobileOpen && (
           <div className="border-t bg-card p-4 md:hidden">
             <nav className="flex flex-col gap-1">
-              {PUBLIC_NAV_LINKS.map((l) =>
-                l.to.includes('#') ? (
-                  <a
-                    key={l.to}
-                    href={l.to}
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground"
-                  >
-                    {l.label}
-                  </a>
-                ) : (
+              {PUBLIC_NAV_LINKS.map((l) => {
+                const close = () => setMobileOpen(false);
+                if (l.kind === 'home') {
+                  return (
+                    <Link
+                      key="home"
+                      to={ROUTES.home}
+                      onClick={(e) => {
+                        onHomeLinkClick(e);
+                        close();
+                      }}
+                      className={`rounded-md px-3 py-2.5 text-sm font-medium ${isOnHome ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
+                    >
+                      {l.label}
+                    </Link>
+                  );
+                }
+                if (l.kind === 'section') {
+                  return (
+                    <button
+                      key={l.sectionId}
+                      type="button"
+                      onClick={(e) => {
+                        scrollToSection(l.sectionId, e);
+                        close();
+                      }}
+                      className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-muted-foreground"
+                    >
+                      {l.label}
+                    </button>
+                  );
+                }
+                return (
                   <Link
                     key={l.to}
                     to={l.to}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={close}
                     className={`rounded-md px-3 py-2.5 text-sm font-medium ${location.pathname === l.to ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
                   >
                     {l.label}
                   </Link>
-                )
-              )}
+                );
+              })}
               <div className="mt-3 flex flex-col gap-2 pt-3">
                 <Button variant="default" asChild>
                   <Link to={ROUTES.login}>Log In</Link>
@@ -120,6 +176,7 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
                 <li>
                   <Link
                     to={ROUTES.home}
+                    onClick={onHomeLinkClick}
                     className="hover:text-primary-foreground"
                   >
                     Home
@@ -134,12 +191,13 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="/#case-flow"
-                    className="hover:text-primary-foreground"
+                  <button
+                    type="button"
+                    onClick={(e) => scrollToSection('case-flow', e)}
+                    className="text-left hover:text-primary-foreground"
                   >
                     Case flow
-                  </a>
+                  </button>
                 </li>
                 <li>
                   <Link

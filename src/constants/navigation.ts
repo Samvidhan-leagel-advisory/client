@@ -41,13 +41,18 @@ export const LAWYER_NAV: NavItem[] = [
   { label: 'Profile', to: ROUTES.lawyer.profile, icon: User },
 ];
 
-/** Marketing / public site header nav (paths only). */
-export const PUBLIC_NAV_LINKS = [
-  { label: 'Home', to: ROUTES.home },
-  { label: 'Case flow', to: '/#case-flow' },
-  { label: 'About', to: ROUTES.about },
-  { label: 'FAQ', to: ROUTES.faq },
-] as const;
+export type PublicNavLink =
+  | { label: string; kind: 'home' }
+  | { label: string; kind: 'section'; sectionId: string }
+  | { label: string; kind: 'route'; to: string };
+
+/** Marketing / public site header nav. */
+export const PUBLIC_NAV_LINKS: readonly PublicNavLink[] = [
+  { label: 'Home', kind: 'home' },
+  { label: 'Case flow', kind: 'section', sectionId: 'case-flow' },
+  { label: 'About', kind: 'route', to: ROUTES.about },
+  { label: 'FAQ', kind: 'route', to: ROUTES.faq },
+];
 
 export const ADMIN_NAV: NavItem[] = [
   { label: 'Dashboard', to: ROUTES.admin.dashboard, icon: LayoutDashboard },
