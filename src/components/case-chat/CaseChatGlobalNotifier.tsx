@@ -8,15 +8,15 @@ import {
   path,
 } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
-import { useDraggableFixedStack } from '@/hooks/use-draggable-fixed-stack';
 import { useCaseChatUnreadSummary } from '@/hooks/use-case-chat-unread';
-import { getCookie } from '@/lib/helpers';
-import { CHAT_NOTIFY, createCaseChatSocket } from '@/lib/case-chat-socket';
+import { useDraggableFixedStack } from '@/hooks/use-draggable-fixed-stack';
 import {
   invalidateCaseChatUnread,
   invalidateCaseMessagesForCase,
 } from '@/lib/case-chat-queries';
+import { CHAT_NOTIFY, createCaseChatSocket } from '@/lib/case-chat-socket';
 import { playCaseMessageChime } from '@/lib/case-notify-sound';
+import { getCookie } from '@/lib/helpers';
 import { queryClient } from '@/lib/query-client';
 import { cn } from '@/lib/utils';
 import type { CaseChatNotifierLivePeek, CaseChatNotifyPayload } from '@/types';
@@ -98,15 +98,6 @@ export function CaseChatGlobalNotifier() {
     }, UNREAD_INVALIDATE_DEBOUNCE_MS);
   }, []);
 
-  const goToChat = useCallback(
-    (target: string, caseId: string, title?: string) => {
-      invalidateCaseMessagesForCase(queryClient, caseId);
-      invalidateCaseChatUnread(queryClient);
-      dismissPeek();
-      navigate(target, { state: { title } });
-    },
-    [dismissPeek, navigate]
-  );
 
   const goToInbox = useCallback(() => {
     dismissPeek();
@@ -217,21 +208,6 @@ export function CaseChatGlobalNotifier() {
               <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                 {truncate(livePeek.payload.message.content, 100)}
               </p>
-              <div className="mt-3 flex flex-wrap justify-end gap-2">
-                <Button type="button" size="sm" variant="ghost" onClick={dismissPeek}>
-                  Dismiss
-                </Button>
-                <Button type="button" size="sm" variant="outline" onClick={goToInbox}>
-                  Inbox
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => goToChat(livePeek.target, livePeek.payload.caseId)}
-                >
-                  Open chat
-                </Button>
-              </div>
             </div>
           </div>
         </div>
