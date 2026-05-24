@@ -131,7 +131,6 @@ const AdminCaseDetail = () => {
   const userId = caseData?.user?.id;
   const {
     subscription: userActiveSubscription,
-    isCancelledAtPeriodEnd: userSubscriptionCancelling,
     isLoading: isUserSubscriptionLoading,
   } = useUserActiveSubscription(userId);
   const timelineUpdatedAt = caseData?.updatedAt ?? caseData?.createdAt;
@@ -390,7 +389,6 @@ const AdminCaseDetail = () => {
             <div className="flex flex-col gap-5">
               <ActiveSubscriptionCard
                 subscription={userActiveSubscription}
-                isCancelledAtPeriodEnd={userSubscriptionCancelling}
                 isLoading={isUserSubscriptionLoading}
               />
               <Card className="overflow-hidden shadow-sm">

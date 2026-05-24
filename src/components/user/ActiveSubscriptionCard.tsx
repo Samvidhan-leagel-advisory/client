@@ -1,19 +1,16 @@
 import WithShimmer from '@/components/WithShimmer';
-import type { AdminPaymentsSubscriptionRow } from '@/types';
+import type { ActiveSubscriptionView } from '@/types';
 import { CreditCard } from 'lucide-react';
 
 type ActiveSubscriptionCardProps = {
-  subscription: AdminPaymentsSubscriptionRow | undefined;
+  subscription: ActiveSubscriptionView | null | undefined;
   /** True while the source list is still loading and we have nothing to show yet. */
   isLoading?: boolean;
-  /** Razorpay "cancel at cycle end" — still valid until `currentPeriodEnd`. */
-  isCancelledAtPeriodEnd?: boolean;
 };
 
 export function ActiveSubscriptionCard({
   subscription,
   isLoading = false,
-  isCancelledAtPeriodEnd = false,
 }: ActiveSubscriptionCardProps) {
   return (
     <div className="rounded-xl border bg-card p-4 sm:p-5">
@@ -30,10 +27,7 @@ export function ActiveSubscriptionCard({
           <WithShimmer loading className="h-4 w-64" />
         </div>
       ) : subscription ? (
-        <ActiveSubscriptionBody
-          subscription={subscription}
-          isCancelledAtPeriodEnd={isCancelledAtPeriodEnd}
-        />
+        <ActiveSubscriptionBody subscription={subscription} />
       ) : (
         <p className="text-sm text-muted-foreground">No active subscription.</p>
       )}
@@ -43,36 +37,24 @@ export function ActiveSubscriptionCard({
 
 function ActiveSubscriptionBody({
   subscription,
-  isCancelledAtPeriodEnd,
 }: {
-  subscription: AdminPaymentsSubscriptionRow;
-  isCancelledAtPeriodEnd: boolean;
+  subscription: ActiveSubscriptionView;
 }) {
-  const isLifetime =
-    !subscription.razorpaySubscriptionId &&
-    Boolean(subscription.razorpayOrderId);
-  const refId =
-    subscription.razorpaySubscriptionId ?? subscription.razorpayOrderId ?? '—';
-  const price = subscription.subscriptionPlan?.priceInr
-    ? Number(subscription.subscriptionPlan.priceInr)
-    : null;
-  const endDateLabel = subscription.currentPeriodEnd
-    ? new Date(subscription.currentPeriodEnd).toLocaleDateString('en-IN')
+  const { isLifetime, cancelledAtPeriodEnd, plan, refId } = subscription;
+  const price = plan.priceInr ? Number(plan.priceInr) : null;
+  const endDateLabel = subscription.endDate
+    ? new Date(subscription.endDate).toLocaleDateString('en-IN')
     : '—';
 
-  const statusBadgeClass = isCancelledAtPeriodEnd
+  const statusBadgeClass = cancelledAtPeriodEnd
     ? 'bg-amber-50 text-amber-700'
     : 'bg-green-50 text-green-700';
-  const statusLabel = isCancelledAtPeriodEnd
-    ? 'Cancelling'
-    : subscription.status;
+  const statusLabel = cancelledAtPeriodEnd ? 'Cancelling' : subscription.status;
 
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-base font-semibold">
-          {subscription.subscriptionPlan?.name ?? '—'}
-        </span>
+        <span className="text-base font-semibold">{plan.name || '—'}</span>
         <span
           className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${isLifetime ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'}`}
         >
@@ -88,28 +70,29 @@ function ActiveSubscriptionBody({
         {price !== null && (
           <span>
             ₹{price.toLocaleString('en-IN')}
-            {subscription.subscriptionPlan?.billingCycle
-              ? ` · ${String(subscription.subscriptionPlan.billingCycle).replace(/_/g, ' ')}`
+            {plan.billingCycle
+              ? ` · ${String(plan.billingCycle).replace(/_/g, ' ')}`
               : ''}
           </span>
         )}
         <span>
           {isLifetime
             ? 'No expiry'
-            : isCancelledAtPeriodEnd
+            : cancelledAtPeriodEnd
               ? `Ends ${endDateLabel}`
               : `Renews ${endDateLabel}`}
         </span>
       </div>
-      {isCancelledAtPeriodEnd && (
+      {cancelledAtPeriodEnd && (
         <p className="text-xs text-amber-700">
-          User cancelled their subscription. Access continues until the period
-          ends.
+          Subscription cancelled. Access continues until the period ends.
         </p>
       )}
-      <div className="break-all font-mono text-xs text-muted-foreground">
-        {refId}
-      </div>
+      {refId && (
+        <div className="break-all font-mono text-xs text-muted-foreground">
+          {refId}
+        </div>
+      )}
     </div>
   );
 }

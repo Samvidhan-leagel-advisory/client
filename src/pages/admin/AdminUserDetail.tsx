@@ -7,6 +7,7 @@ import WithShimmer from '@/components/WithShimmer';
 import { path } from '@/constants';
 import { useAdminPayments } from '@/hooks/useAdminPayments';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useUserActiveSubscription } from '@/hooks/useUserActiveSubscription';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { CasesResponse } from '@/types';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
@@ -60,7 +61,10 @@ const AdminUserDetail = () => {
   const total = pagination?.total ?? 0;
   const casesLoading = isFetching;
 
-  const activeSubscription = payments.rows.find((r) => r.status === 'active');
+  const {
+    subscription: userActiveSubscription,
+    isLoading: isUserSubscriptionLoading,
+  } = useUserActiveSubscription(id);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -148,8 +152,8 @@ const AdminUserDetail = () => {
         </div>
 
         <ActiveSubscriptionCard
-          subscription={activeSubscription}
-          isLoading={payments.isFetching && payments.rows.length === 0}
+          subscription={userActiveSubscription}
+          isLoading={isUserSubscriptionLoading}
         />
 
         {/* Cases */}

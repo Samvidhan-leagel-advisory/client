@@ -318,6 +318,27 @@ export interface MyRazorpaySubscriptionsResponse {
   } | null;
 }
 
+/**
+ * Normalized "currently entitled" subscription shape, shared by user `/me`
+ * and admin payments hooks. Consumed by `ActiveSubscriptionCard`.
+ */
+export interface ActiveSubscriptionView {
+  id: string;
+  status: string;
+  isLifetime: boolean;
+  cancelledAtPeriodEnd: boolean;
+  startDate: string | null;
+  endDate: string | null;
+  plan: {
+    id?: string;
+    name: string;
+    billingCycle: string | null;
+    priceInr?: string | number | null;
+  };
+  /** Razorpay subscription/order id. Optional — only rendered when present. */
+  refId?: string | null;
+}
+
 /** POST /api/razorpay/subscriptions/start */
 export interface StartRazorpaySubscriptionResponse {
   subscriptionId: string;

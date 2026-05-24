@@ -4,14 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { useActiveSubscription } from '@/hooks/useActiveSubscription';
 import { downloadSamvidhanAdvisoryCardPdf } from '@/lib/samvidhan-advisory-card-pdf';
-import type { MyRazorpaySubscriptionsResponse } from '@/types';
+import type { ActiveSubscriptionView } from '@/types';
 import { FileDown, Loader2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 interface DownloadSamvidhanCardProps {
-  subscriptionPlan: NonNullable<
-    MyRazorpaySubscriptionsResponse['subscription']
-  >;
+  subscriptionPlan: ActiveSubscriptionView;
 }
 
 export const DownloadSamvidhanCard = ({
