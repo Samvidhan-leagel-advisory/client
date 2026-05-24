@@ -34,9 +34,9 @@ const skipAuthPaths = new Set([
 // --- Axios instance ---
 
 const apiClient = axios.create({
-  // Only set baseURL when an explicit origin is configured (local dev).
-  // In production the Vercel rewrite proxy handles /api/* so relative paths work.
-  ...(env.apiBaseUrl ? { baseURL: env.apiBaseUrl } : {}),
+  // Local dev: use explicit origin from env. Production: use /api prefix so
+  // Vercel routes /api/* to the backend without conflicting with React Router paths.
+  baseURL: env.apiBaseUrl || '/api',
   timeout: env.apiTimeoutMs,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
