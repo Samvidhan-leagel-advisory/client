@@ -151,7 +151,7 @@ const AdminLawyers = () => {
               </tr>
             </thead>
             <tbody>
-              {lawyers.length === 0 && (
+              {lawyers.length === 0 && !isFetching && (
                 <tr>
                   <td
                     colSpan={7}
