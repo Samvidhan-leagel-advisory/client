@@ -1,19 +1,22 @@
 import { getAdminUserCases, getAdminUserDetails } from '@/api-client';
+import { Button } from '@/components/ui/button';
 import { UserCasesTable } from '@/components/user/UserCasesTable';
 import { UserPaymentsTable } from '@/components/user/UserPaymentsTable';
 import WithShimmer from '@/components/WithShimmer';
-import { useDebounce } from '@/hooks/useDebounce';
+import { path } from '@/constants';
 import { useAdminPayments } from '@/hooks/useAdminPayments';
+import { useDebounce } from '@/hooks/useDebounce';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { CasesResponse } from '@/types';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Calendar, Mail, Phone } from 'lucide-react';
+import { Calendar, Mail, Phone, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { buildUserCasesQueryParams } from '../user/UserCases';
 
 const AdminUserDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const { data: userData, isLoading } = useQuery({
     queryKey: ['adminUserDetails', id],
@@ -70,7 +73,7 @@ const AdminUserDetail = () => {
     <AdminLayout>
       <div className="min-w-0 space-y-4">
         <div className="rounded-xl border bg-card p-4 sm:p-6">
-          <div className="flex min-w-0 items-start gap-4">
+          <div className="flex min-w-0 flex-wrap items-start gap-4">
             <WithShimmer
               loading={isLoading}
               className="h-14 w-14 shrink-0 rounded-full"
@@ -125,6 +128,17 @@ const AdminUserDetail = () => {
                 )}
               </div>
             </div>
+            {id && (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => navigate(path.adminUserNewCase(id))}
+                className="ml-auto shrink-0"
+              >
+                <Plus className="mr-1.5 h-4 w-4" />
+                Create Case
+              </Button>
+            )}
           </div>
         </div>
 

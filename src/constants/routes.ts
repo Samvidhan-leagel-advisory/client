@@ -63,6 +63,7 @@ export const ROUTE_PATTERNS = {
   caseInternalNotes: '/cases/:id/internal-notes',
   caseChat: '/cases/:id/chat',
   adminUserDetail: `${PATH_PREFIX.admin}/users/:id`,
+  adminUserNewCase: `${PATH_PREFIX.admin}/users/:id/new-case`,
   adminLawyerDetail: `${PATH_PREFIX.admin}/lawyers/:id`,
   adminLawyerDocuments: `${PATH_PREFIX.admin}/lawyers/:id/documents`,
   adminCaseDetail: `${PATH_PREFIX.admin}/cases/:id`,
@@ -80,6 +81,7 @@ export const path = {
   adminCaseDocuments: (id: string) =>
     `${ROUTES.admin.cases}/${id}/documents`,
   adminUser: (id: string) => `${ROUTES.admin.users}/${id}`,
+  adminUserNewCase: (id: string) => `${ROUTES.admin.users}/${id}/new-case`,
   adminLawyer: (id: string) => `${ROUTES.admin.lawyers}/${id}`,
   adminLawyerDocuments: (id: string) =>
     `${ROUTES.admin.lawyers}/${id}/documents`,

@@ -445,6 +445,14 @@ export const getAdminUserCases = (id, params) => {
   });
 };
 
+export const createAdminUserCase = (userId, body) => {
+  return apiClient({
+    method: routes.ADMIN_USER_CREATE_CASE.METHOD,
+    url: routes.ADMIN_USER_CREATE_CASE.URL.replace(':userId', userId),
+    data: body,
+  });
+};
+
 export const getAdminLawyerCases = (lawyerId, params) => {
   return apiClient({
     method: routes.ADMIN_LAWYER_CASES.METHOD,

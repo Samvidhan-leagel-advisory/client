@@ -44,6 +44,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminLawyerDetail from './pages/admin/AdminLawyerDetail';
 import AdminLawyerDocumentsPage from './pages/admin/AdminLawyerDocumentsPage';
 import AdminLawyers from './pages/admin/AdminLawyers';
+import AdminNewCase from './pages/admin/AdminNewCase';
 import AdminPayments from './pages/admin/AdminPayments';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminSubscriptions from './pages/admin/AdminSubscriptions';
@@ -80,7 +81,6 @@ const AppInner = () => (
               element={<Navigate to={{ pathname: ROUTES.home, hash: 'case-flow' }} replace />}
             />
             <Route path={ROUTES.login} element={<LoginPage />} />
-            <Route path={ROUTES.admin.login} element={<AdminLoginPage />} />
             <Route path="/dummy-login" element={<DummyLoginPage />} />
 
             {/* User */}
@@ -265,6 +265,14 @@ const AppInner = () => (
               element={
                 <AdminProtectedRoute>
                   <AdminUsers />
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTE_PATTERNS.adminUserNewCase}
+              element={
+                <AdminProtectedRoute>
+                  <AdminNewCase />
                 </AdminProtectedRoute>
               }
             />

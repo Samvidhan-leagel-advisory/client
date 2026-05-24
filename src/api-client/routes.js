@@ -227,6 +227,10 @@ const routes = {
     URL: '/admin/users/:id/cases',
     METHOD: 'GET',
   },
+  ADMIN_USER_CREATE_CASE: {
+    URL: '/admin/users/:userId/cases',
+    METHOD: 'POST',
+  },
   ADMIN_LAWYER_DETAILS: {
     URL: '/admin/lawyers/:id',
     METHOD: 'GET',
