@@ -139,7 +139,7 @@ const AdminCaseDetail = () => {
   const showCaseActions = ['lawyer_assigned', 'under_review'].includes(
     caseData?.status
   );
-  const showBookSession = isLawyerAssigned && !caseData?.caseSessionRequest;
+  const showBookSession = isLawyerAssigned && !caseData?.caseSessionRequest && ['lawyer_assigned', 'under_review'].includes(caseData?.status ?? '');
 
   if (isLoading) {
     return (
