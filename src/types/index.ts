@@ -479,8 +479,8 @@ export interface CaseItem {
   status: CaseStatus;
   description?: string;
   practiceArea: { id: string; name: string } | null;
-  assignedLawyer: { user: { fullName: string } } | null;
-  user?: { fullName: string };
+    assignedLawyer: { user: { fullName: string , id: string } , id: string} | null;
+  user?: { fullName: string , id: string};
   isEmergency?: boolean;
   createdAt: string;
 }
@@ -490,7 +490,7 @@ export interface CaseDetails extends Omit<CaseItem, 'assignedLawyer' | 'user'> {
   assignedLawyerId?: string | null;
   assignedLawyer?: {
     id?: string;
-    user: { fullName: string; avatarUrl?: string | null };
+    user: { fullName: string; avatarUrl?: string | null , id: string};
   } | null;
   messages?: CaseMessage[];
   updatedAt?: string;

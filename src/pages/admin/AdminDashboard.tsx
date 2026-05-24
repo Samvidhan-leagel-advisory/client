@@ -10,6 +10,7 @@ import {
   Briefcase,
   CreditCard,
   FileText,
+  User,
   UserCheck,
   Users,
 } from 'lucide-react';
@@ -152,7 +153,11 @@ const AdminDashboard = () => {
                         #{c.caseCode}
                       </CaseCodeLink>
                     </td>
-                    <td className="px-4 py-3">{c.user?.fullName || '-'}</td>
+                    <td className="px-4 py-3">
+                      <Link to={path.adminUser(c.user?.id)} className="hover:text-gold hover:underline">
+                        {c.user?.fullName || '-'}
+                      </Link>
+                    </td>
                     <td className="hidden max-w-[200px] truncate px-4 py-3 font-medium text-muted-foreground sm:table-cell">
                       {c.title}
                     </td>
@@ -237,7 +242,12 @@ const AdminDashboard = () => {
                           {isLifetime ? 'Lifetime' : 'Subscription'}
                         </span>
                       </td>
-                      <td className="px-4 py-3">{p.user?.fullName || '-'}</td>
+                     
+                      <td className="px-4 py-3">
+                        <Link to={path.adminUser(p.user?.id)} className="hover:text-gold hover:underline">
+                          {p.user?.fullName || '-'}
+                        </Link>
+                      </td>
                       <td className="px-4 py-3">
                         {p.subscriptionPlan?.name || '-'}
                       </td>
