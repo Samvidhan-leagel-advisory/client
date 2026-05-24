@@ -73,7 +73,8 @@ const AdminUserDetail = () => {
     <AdminLayout>
       <div className="min-w-0 space-y-4">
         <div className="rounded-xl border bg-card p-4 sm:p-6">
-          <div className="flex min-w-0 flex-wrap items-start gap-4">
+          <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start">
+            <div className="flex min-w-0 flex-1 items-start gap-4">
             <WithShimmer
               loading={isLoading}
               className="h-14 w-14 shrink-0 rounded-full"
@@ -128,12 +129,13 @@ const AdminUserDetail = () => {
                 )}
               </div>
             </div>
+            </div>
             {id && (
               <Button
                 type="button"
                 size="sm"
                 onClick={() => navigate(path.adminUserNewCase(id))}
-                className="ml-auto shrink-0"
+                className="w-full shrink-0 sm:w-auto"
               >
                 <Plus className="mr-1.5 h-4 w-4" />
                 Create Case
