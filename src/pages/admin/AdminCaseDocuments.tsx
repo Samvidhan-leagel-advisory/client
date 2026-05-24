@@ -149,7 +149,14 @@ const AdminCaseDocuments = () => {
                   </div>
                 ))}
               </div>
-            ) : documents.length === 0 ? (
+            ) : uploadDisabled  ? 
+            <div className="flex flex-col items-center justify-center py-14 text-center">
+                <p className="mb-4 max-w-sm text-sm text-muted-foreground">
+                Case is closed or rejected.
+                </p>
+               
+              </div>
+            :documents.length === 0  ? (
               <div className="flex flex-col items-center justify-center py-14 text-center">
                 <p className="mb-4 max-w-sm text-sm text-muted-foreground">
                   Nothing uploaded for this case yet.
