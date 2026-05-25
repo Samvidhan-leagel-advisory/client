@@ -1,4 +1,3 @@
-import { getAdminSettings } from '@/api-client';
 import { BrandLogo } from '@/components/BrandLogo';
 import { Button } from '@/components/ui/button';
 import { PUBLIC_NAV_LINKS, ROUTES } from '@/constants';
@@ -7,7 +6,7 @@ import {
   useScrollToStateSection,
 } from '@/hooks/use-public-home-nav';
 import { Menu, X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const navLinkClass = (active: boolean) =>
@@ -19,17 +18,7 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const { isOnHome, onHomeLinkClick, scrollToSection } = usePublicHomeNav();
-  const [settings, setSettings] = useState(null);
   useScrollToStateSection();
-
-  const getSettings = useCallback(async () => {
-    const response = await getAdminSettings();
-    setSettings(response.data);
-  }, []);
-
-  useEffect(() => {
-    void getSettings();
-  }, [getSettings]);
 
   useEffect(() => {
     const scrollTarget = (location.state as { scrollTo?: string } | null)
@@ -233,9 +222,11 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
             <div>
               <h4 className="mb-3 text-sm font-semibold text-gold">Contact</h4>
               <ul className="space-y-2 text-sm text-primary-foreground/70">
-                <li>{settings?.supportEmail}</li>
-                <li>{settings?.supportPhone}</li>
-                <li>New Delhi, India</li>
+                <li>+91 9152921212</li>
+                <li>
+                  Shop No 12, Shiv Surbhi Apartment, Kandivali, Chikhal Wadi,
+                  Thakur Village, Kandivali East, Mumbai, Maharashtra 400101
+                </li>
               </ul>
             </div>
           </div>
