@@ -15,7 +15,6 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import AboutPage from './pages/AboutPage';
-import AdminLoginPage from './pages/AdminLoginPage';
 import DpdpConsentPage from './pages/DpdpConsentPage';
 import DummyLoginPage from './pages/DummyLoginPage';
 import FAQPage from './pages/FAQPage';
@@ -46,7 +45,6 @@ import AdminLawyerDocumentsPage from './pages/admin/AdminLawyerDocumentsPage';
 import AdminLawyers from './pages/admin/AdminLawyers';
 import AdminNewCase from './pages/admin/AdminNewCase';
 import AdminPayments from './pages/admin/AdminPayments';
-import AdminSettings from './pages/admin/AdminSettings';
 import AdminSubscriptions from './pages/admin/AdminSubscriptions';
 import AdminUserDetail from './pages/admin/AdminUserDetail';
 import AdminUsers from './pages/admin/AdminUsers';
@@ -75,10 +73,18 @@ const AppInner = () => (
             <Route path={ROUTES.faq} element={<FAQPage />} />
             <Route path={ROUTES.terms} element={<TermsPage />} />
             <Route path={ROUTES.dpdpConsent} element={<DpdpConsentPage />} />
-            <Route path={ROUTES.plans} element={<Navigate to={ROUTES.home} replace />} />
+            <Route
+              path={ROUTES.plans}
+              element={<Navigate to={ROUTES.home} replace />}
+            />
             <Route
               path={ROUTES.howItWorks}
-              element={<Navigate to={{ pathname: ROUTES.home, hash: 'case-flow' }} replace />}
+              element={
+                <Navigate
+                  to={{ pathname: ROUTES.home, hash: 'case-flow' }}
+                  replace
+                />
+              }
             />
             <Route path={ROUTES.login} element={<LoginPage />} />
             <Route path="/dummy-login" element={<DummyLoginPage />} />
@@ -366,14 +372,14 @@ const AppInner = () => (
               }
             />
 
-            <Route
+            {/* <Route
               path={ROUTES.admin.settings}
               element={
                 <AdminProtectedRoute>
                   <AdminSettings />
                 </AdminProtectedRoute>
               }
-            />
+            /> */}
 
             <Route path="*" element={<NotFound />} />
           </Routes>

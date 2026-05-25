@@ -1,11 +1,6 @@
 import { BrandLogo } from '@/components/BrandLogo';
 import Breadcrumbs from '@/components/Breakcrumbs';
-import {
-  ADMIN_NAV,
-  ROUTES,
-  isCaseChatPathname,
-  isFullScreenCaseSubpage,
-} from '@/constants';
+import { ADMIN_NAV, ROUTES, isFullScreenCaseSubpage } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCaseChatUnreadSummary } from '@/hooks/use-case-chat-unread';
 import { useSidebarScrollRestore } from '@/hooks/useSidebarScrollRestore';
@@ -35,7 +30,6 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [isClearingCache, setIsClearingCache] = useState(false);
   const navRef = useSidebarScrollRestore('admin');
 
-  const isCaseChat = isCaseChatPathname(location.pathname);
   const isFullScreen = isFullScreenCaseSubpage(location.pathname);
 
   const handleLogout = async () => {

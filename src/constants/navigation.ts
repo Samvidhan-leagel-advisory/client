@@ -10,7 +10,7 @@ import {
   FileText,
   LayoutDashboard,
   Plus,
-  Settings,
+  // Settings,
   ShieldCheck,
   User,
   UserCheck,
@@ -78,5 +78,5 @@ export const ADMIN_NAV: NavItem[] = [
   },
   { label: 'Subscriptions', to: ROUTES.admin.subscriptions, icon: FileText },
   { label: 'Payments', to: ROUTES.admin.payments, icon: CreditCard },
-  { label: 'Settings', to: ROUTES.admin.settings, icon: Settings },
+  // { label: 'Settings', to: ROUTES.admin.settings, icon: Settings },
 ];

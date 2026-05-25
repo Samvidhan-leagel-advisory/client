@@ -26,7 +26,7 @@ const ROUTE_LABELS: Record<string, string> = {
   documents: 'Documents',
   users: 'Users',
   payments: 'Payments',
-  settings: 'Settings',
+  // settings: 'Settings',
   subscriptions: 'Subscriptions',
   'case-requests': 'Case Requests',
   'session-requests': 'Session Requests',
