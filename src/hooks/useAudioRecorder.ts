@@ -151,13 +151,11 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     if (!isWebView) return;
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<NativeAudioEvent>).detail;
-      console.log('[AudioRecorder] native event:', detail);
       if (detail.type === 'AUDIO_RECORD_STARTED') {
         setIsRecording(true);
         setRecorderError(null);
         startTimer(() => postNativeWebViewMessage({ type: 'AUDIO_RECORD_STOP' }));
       } else if (detail.type === 'AUDIO_RECORD_ERROR') {
-        console.error('[AudioRecorder] native error:', detail.error);
         clearTimer();
         setIsRecording(false);
         setRecorderError('start_failed');
@@ -197,38 +195,25 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     onUrl(null);
     chunksRef.current = [];
 
-    // WebView: delegate entirely to React Native native recording
     if (isWebView) {
-      console.log('[AudioRecorder] WebView mode — delegating to native bridge');
       postNativeWebViewMessage({ type: 'AUDIO_RECORD_START' });
       return;
     }
 
-    // Web browser: use getUserMedia + MediaRecorder
-    console.log('[AudioRecorder] start() — web mode');
-    console.log('[AudioRecorder] mediaDevices:', navigator?.mediaDevices);
-    console.log('[AudioRecorder] isSecureContext:', window.isSecureContext);
-
     if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
-      console.error('[AudioRecorder] getUserMedia not available');
       setRecorderError('unsupported');
       return;
     }
     if (typeof MediaRecorder === 'undefined') {
-      console.error('[AudioRecorder] MediaRecorder not available');
       setRecorderError('unsupported');
       return;
     }
 
     let stream: MediaStream;
     try {
-      console.log('[AudioRecorder] calling getUserMedia...');
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log('[AudioRecorder] getUserMedia OK — tracks:', stream.getTracks().map(t => `${t.kind}:${t.readyState}`));
     } catch (err) {
       const name = (err as { name?: string })?.name ?? '';
-      const message = (err as { message?: string })?.message ?? '';
-      console.error('[AudioRecorder] getUserMedia FAILED name:', name, 'message:', message);
       if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') {
         setRecorderError('permission_denied');
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
@@ -245,9 +230,7 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     let mime: string | undefined;
     try {
       ({ recorder, mime } = makeRecorder(stream));
-      console.log('[AudioRecorder] MediaRecorder mime:', mime ?? '(default)');
-    } catch (err) {
-      console.error('[AudioRecorder] makeRecorder failed:', err);
+    } catch {
       stopStream();
       setRecorderError('unsupported');
       return;
@@ -259,17 +242,14 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
       if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
     };
     recorder.onstop = () => { void handleStop(); };
-    recorder.onerror = (e) => {
-      console.error('[AudioRecorder] recorder.onerror:', e);
+    recorder.onerror = () => {
       setRecorderError('start_failed');
       try { recorder.stop(); } catch { /* ignore */ }
     };
 
     try {
       recorder.start(1000);
-      console.log('[AudioRecorder] recorder.start OK — state:', recorder.state);
-    } catch (err) {
-      console.error('[AudioRecorder] recorder.start failed:', err);
+    } catch {
       stopStream();
       setRecorderError('start_failed');
       return;
