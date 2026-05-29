@@ -83,9 +83,16 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             textVariant="headerCompact"
           />
         </div>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy text-xs font-bold text-primary-foreground">
-          {user?.fullName?.charAt(0)?.toUpperCase() ?? 'A'}
-        </div>
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          aria-label="Open menu"
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy text-xs font-bold text-primary-foreground">
+            {user?.fullName?.charAt(0)?.toUpperCase() ?? 'A'}
+          </div>
+        </button>
       </header>
 
       {sidebarOpen && (
