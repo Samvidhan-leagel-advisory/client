@@ -15,25 +15,32 @@ type RecorderError =
  * Native `MediaRecorder`. Avoids `react-media-recorder` / `extendable-media-recorder`,
  * which rely on AudioWorklet for WAV encoding and silently fails on Android WebView.
  * We pick whichever container the device supports (webm/opus on Android, mp4/aac on iOS Safari).
+ *
+ * NOTE: We try-catch actual MediaRecorder construction instead of relying on
+ * `isTypeSupported`, because Android WebView often returns false for all supported
+ * types making `isTypeSupported` unreliable.
  */
-function pickMimeType(): string | undefined {
-  if (typeof MediaRecorder === 'undefined') return undefined;
-  const candidates = [
-    'audio/webm;codecs=opus',
-    'audio/webm',
-    'audio/mp4;codecs=mp4a.40.2',
-    'audio/mp4',
-    'audio/ogg;codecs=opus',
-    'audio/ogg',
-  ];
-  for (const t of candidates) {
+const MIME_CANDIDATES = [
+  'audio/webm;codecs=opus',
+  'audio/webm',
+  'audio/mp4;codecs=mp4a.40.2',
+  'audio/mp4',
+  'audio/ogg;codecs=opus',
+  'audio/ogg',
+] as const;
+
+function makeRecorder(stream: MediaStream): { recorder: MediaRecorder; mime: string | undefined } {
+  for (const mime of MIME_CANDIDATES) {
     try {
-      if (MediaRecorder.isTypeSupported(t)) return t;
+      const recorder = new MediaRecorder(stream, { mimeType: mime });
+      return { recorder, mime };
     } catch {
-      /* ignore */
+      /* not supported, try next */
     }
   }
-  return undefined;
+  // Last resort: let the browser pick the default codec
+  const recorder = new MediaRecorder(stream);
+  return { recorder, mime: undefined };
 }
 
 function extensionFor(mime: string | undefined): string {
@@ -131,7 +138,7 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch (err) {
       const name = (err as { name?: string })?.name ?? '';
-      if (name === 'NotAllowedError' || name === 'SecurityError') {
+      if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') {
         setRecorderError('permission_denied');
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
         setRecorderError('no_device');
@@ -142,17 +149,17 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     }
 
     streamRef.current = stream;
-    const mime = pickMimeType();
-    mimeRef.current = mime;
 
     let recorder: MediaRecorder;
+    let mime: string | undefined;
     try {
-      recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      ({ recorder, mime } = makeRecorder(stream));
     } catch {
       stopStream();
       setRecorderError('unsupported');
       return;
     }
+    mimeRef.current = mime;
 
     recorderRef.current = recorder;
     recorder.ondataavailable = (e) => {
