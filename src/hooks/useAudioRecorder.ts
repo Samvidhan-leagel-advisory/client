@@ -142,10 +142,27 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
       return;
     }
 
+    // NotReadableError = mic hardware temporarily locked by Android's echo canceller (AEC).
+    // Retry once with AEC/NS/AGC disabled to release the hardware lock.
+    const acquireStream = async (): Promise<MediaStream> => {
+      try {
+        return await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (firstErr) {
+        if ((firstErr as { name?: string })?.name === 'NotReadableError') {
+          console.warn('[AudioRecorder] NotReadableError — retrying in 500ms with echoCancellation:false');
+          await new Promise<void>((r) => setTimeout(r, 500));
+          return navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+          });
+        }
+        throw firstErr;
+      }
+    };
+
     let stream: MediaStream;
     try {
       console.log('[AudioRecorder] Calling getUserMedia...');
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await acquireStream();
       console.log('[AudioRecorder] getUserMedia SUCCESS — tracks:', stream.getTracks().map(t => `${t.kind}:${t.label}:${t.readyState}`));
     } catch (err) {
       const name = (err as { name?: string })?.name ?? '';

@@ -297,7 +297,7 @@ export const CreateCase = ({
                 )}
                 {audio.recorderError && !audio.permissionDenied && (
                   <p className="text-xs text-destructive">
-                    Could not start recording. Try again or use text description.
+                    Could not access microphone. Close other apps using the mic, then tap Record again.
                   </p>
                 )}
                 {audio.uploadState === 'error' && (
