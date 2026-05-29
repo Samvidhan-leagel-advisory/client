@@ -1,4 +1,5 @@
 import { uploadAsset } from '@/api-client';
+import { isReactNativeWebView, postNativeWebViewMessage } from '@/lib/is-react-native-webview';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const MAX_SECONDS = 120;
@@ -11,14 +12,14 @@ type RecorderError =
   | 'start_failed'
   | null;
 
+type NativeAudioEvent =
+  | { type: 'AUDIO_RECORD_STARTED' }
+  | { type: 'AUDIO_RECORD_ERROR'; error: string }
+  | { type: 'AUDIO_RECORD_DATA'; base64: string; mimeType: string };
+
 /**
- * Native `MediaRecorder`. Avoids `react-media-recorder` / `extendable-media-recorder`,
- * which rely on AudioWorklet for WAV encoding and silently fails on Android WebView.
- * We pick whichever container the device supports (webm/opus on Android, mp4/aac on iOS Safari).
- *
- * NOTE: We try-catch actual MediaRecorder construction instead of relying on
- * `isTypeSupported`, because Android WebView often returns false for all supported
- * types making `isTypeSupported` unreliable.
+ * Try-catch MediaRecorder construction instead of relying on `isTypeSupported`,
+ * because Android WebView often returns false for all types even when they work.
  */
 const MIME_CANDIDATES = [
   'audio/webm;codecs=opus',
@@ -38,7 +39,6 @@ function makeRecorder(stream: MediaStream): { recorder: MediaRecorder; mime: str
       /* not supported, try next */
     }
   }
-  // Last resort: let the browser pick the default codec
   const recorder = new MediaRecorder(stream);
   return { recorder, mime: undefined };
 }
@@ -64,6 +64,9 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
   const mimeRef = useRef<string | undefined>(undefined);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Stable across renders — __samvidhanNativeApp is injected before React loads.
+  const isWebView = isReactNativeWebView();
+
   const clearTimer = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -75,6 +78,22 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
   };
+
+  const startTimer = useCallback((onMaxReached: () => void) => {
+    timerRef.current = setInterval(() => {
+      setElapsed((s) => {
+        if (s + 1 >= MAX_SECONDS) {
+          clearInterval(timerRef.current!);
+          timerRef.current = null;
+          onMaxReached();
+          return MAX_SECONDS;
+        }
+        return s + 1;
+      });
+    }, 1000);
+  }, []);
+
+  // ── Web path: MediaRecorder stop handler ─────────────────────────────────
 
   const handleStop = useCallback(async () => {
     clearTimer();
@@ -101,20 +120,74 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     }
   }, [onUrl]);
 
+  // ── Native bridge path: handle data sent back from React Native ───────────
+
+  const handleNativeData = useCallback(async (base64: string, mimeType: string) => {
+    clearTimer();
+    setIsRecording(false);
+    if (!base64) {
+      setRecorderError('start_failed');
+      return;
+    }
+    setUploadState('uploading');
+    try {
+      // data URI → Blob is the cleanest way to decode base64 in the browser
+      const response = await fetch(`data:${mimeType};base64,${base64}`);
+      const blob = await response.blob();
+      const ext = extensionFor(mimeType);
+      const file = new File([blob], `audio-description.${ext}`, { type: mimeType });
+      const { data } = await uploadAsset(file);
+      setAudioUrl(data.assetUrl);
+      onUrl(data.assetUrl);
+      setUploadState('done');
+    } catch {
+      setUploadState('error');
+      onUrl(null);
+    }
+  }, [onUrl]);
+
+  // Listen for events dispatched by App.js via injectJavaScript
+  useEffect(() => {
+    if (!isWebView) return;
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<NativeAudioEvent>).detail;
+      console.log('[AudioRecorder] native event:', detail);
+      if (detail.type === 'AUDIO_RECORD_STARTED') {
+        setIsRecording(true);
+        setRecorderError(null);
+        startTimer(() => postNativeWebViewMessage({ type: 'AUDIO_RECORD_STOP' }));
+      } else if (detail.type === 'AUDIO_RECORD_ERROR') {
+        console.error('[AudioRecorder] native error:', detail.error);
+        clearTimer();
+        setIsRecording(false);
+        setRecorderError('start_failed');
+      } else if (detail.type === 'AUDIO_RECORD_DATA') {
+        void handleNativeData(detail.base64, detail.mimeType);
+      }
+    };
+    window.addEventListener('samvidhan-native-audio', handler);
+    return () => window.removeEventListener('samvidhan-native-audio', handler);
+  }, [isWebView, startTimer, handleNativeData]);
+
+  // ── stop ─────────────────────────────────────────────────────────────────
+
   const stop = useCallback(() => {
+    if (isWebView) {
+      clearTimer();
+      postNativeWebViewMessage({ type: 'AUDIO_RECORD_STOP' });
+      return;
+    }
     const rec = recorderRef.current;
     if (rec && rec.state !== 'inactive') {
-      try {
-        rec.stop();
-      } catch {
-        /* ignore */
-      }
+      try { rec.stop(); } catch { /* ignore */ }
     } else {
       clearTimer();
       setIsRecording(false);
       stopStream();
     }
-  }, []);
+  }, [isWebView]);
+
+  // ── start ─────────────────────────────────────────────────────────────────
 
   const start = useCallback(async () => {
     setRecorderError(null);
@@ -124,50 +197,38 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     onUrl(null);
     chunksRef.current = [];
 
-    console.log('[AudioRecorder] start() called');
-    console.log('[AudioRecorder] navigator.mediaDevices:', navigator?.mediaDevices);
-    console.log('[AudioRecorder] getUserMedia available:', typeof navigator?.mediaDevices?.getUserMedia);
-    console.log('[AudioRecorder] MediaRecorder available:', typeof MediaRecorder);
+    // WebView: delegate entirely to React Native native recording
+    if (isWebView) {
+      console.log('[AudioRecorder] WebView mode — delegating to native bridge');
+      postNativeWebViewMessage({ type: 'AUDIO_RECORD_START' });
+      return;
+    }
+
+    // Web browser: use getUserMedia + MediaRecorder
+    console.log('[AudioRecorder] start() — web mode');
+    console.log('[AudioRecorder] mediaDevices:', navigator?.mediaDevices);
     console.log('[AudioRecorder] isSecureContext:', window.isSecureContext);
-    console.log('[AudioRecorder] location.protocol:', window.location.protocol);
 
     if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
-      console.error('[AudioRecorder] FAIL: navigator.mediaDevices.getUserMedia not available');
+      console.error('[AudioRecorder] getUserMedia not available');
       setRecorderError('unsupported');
       return;
     }
     if (typeof MediaRecorder === 'undefined') {
-      console.error('[AudioRecorder] FAIL: MediaRecorder not available');
+      console.error('[AudioRecorder] MediaRecorder not available');
       setRecorderError('unsupported');
       return;
     }
 
-    // NotReadableError = mic hardware temporarily locked by Android's echo canceller (AEC).
-    // Retry once with AEC/NS/AGC disabled to release the hardware lock.
-    const acquireStream = async (): Promise<MediaStream> => {
-      try {
-        return await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch (firstErr) {
-        if ((firstErr as { name?: string })?.name === 'NotReadableError') {
-          console.warn('[AudioRecorder] NotReadableError — retrying in 500ms with echoCancellation:false');
-          await new Promise<void>((r) => setTimeout(r, 500));
-          return navigator.mediaDevices.getUserMedia({
-            audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-          });
-        }
-        throw firstErr;
-      }
-    };
-
     let stream: MediaStream;
     try {
-      console.log('[AudioRecorder] Calling getUserMedia...');
-      stream = await acquireStream();
-      console.log('[AudioRecorder] getUserMedia SUCCESS — tracks:', stream.getTracks().map(t => `${t.kind}:${t.label}:${t.readyState}`));
+      console.log('[AudioRecorder] calling getUserMedia...');
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('[AudioRecorder] getUserMedia OK — tracks:', stream.getTracks().map(t => `${t.kind}:${t.readyState}`));
     } catch (err) {
       const name = (err as { name?: string })?.name ?? '';
       const message = (err as { message?: string })?.message ?? '';
-      console.error('[AudioRecorder] getUserMedia FAILED — name:', name, '| message:', message, '| full error:', err);
+      console.error('[AudioRecorder] getUserMedia FAILED name:', name, 'message:', message);
       if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') {
         setRecorderError('permission_denied');
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
@@ -184,9 +245,9 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     let mime: string | undefined;
     try {
       ({ recorder, mime } = makeRecorder(stream));
-      console.log('[AudioRecorder] MediaRecorder created with mime:', mime ?? '(browser default)');
+      console.log('[AudioRecorder] MediaRecorder mime:', mime ?? '(default)');
     } catch (err) {
-      console.error('[AudioRecorder] makeRecorder FAILED — all mime types rejected:', err);
+      console.error('[AudioRecorder] makeRecorder failed:', err);
       stopStream();
       setRecorderError('unsupported');
       return;
@@ -197,41 +258,28 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     recorder.ondataavailable = (e) => {
       if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
     };
-    recorder.onstop = () => {
-      void handleStop();
-    };
+    recorder.onstop = () => { void handleStop(); };
     recorder.onerror = (e) => {
-      console.error('[AudioRecorder] recorder.onerror fired:', e);
+      console.error('[AudioRecorder] recorder.onerror:', e);
       setRecorderError('start_failed');
-      try {
-        recorder.stop();
-      } catch {
-        /* ignore */
-      }
+      try { recorder.stop(); } catch { /* ignore */ }
     };
 
     try {
-      // Timeslice keeps Android WebView from buffering everything until stop.
       recorder.start(1000);
-      console.log('[AudioRecorder] recorder.start(1000) OK — state:', recorder.state);
+      console.log('[AudioRecorder] recorder.start OK — state:', recorder.state);
     } catch (err) {
-      console.error('[AudioRecorder] recorder.start() FAILED:', err);
+      console.error('[AudioRecorder] recorder.start failed:', err);
       stopStream();
       setRecorderError('start_failed');
       return;
     }
 
     setIsRecording(true);
-    timerRef.current = setInterval(() => {
-      setElapsed((s) => {
-        if (s + 1 >= MAX_SECONDS) {
-          stop();
-          return MAX_SECONDS;
-        }
-        return s + 1;
-      });
-    }, 1000);
-  }, [handleStop, onUrl, stop]);
+    startTimer(() => stop());
+  }, [isWebView, handleStop, onUrl, stop, startTimer]);
+
+  // ── clear ─────────────────────────────────────────────────────────────────
 
   const clear = useCallback(() => {
     setAudioUrl(null);
@@ -241,21 +289,20 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     onUrl(null);
   }, [onUrl]);
 
-  useEffect(
-    () => () => {
-      clearTimer();
-      stopStream();
-      const rec = recorderRef.current;
-      if (rec && rec.state !== 'inactive') {
-        try {
-          rec.stop();
-        } catch {
-          /* ignore */
-        }
-      }
-    },
-    []
-  );
+  // ── cleanup on unmount ────────────────────────────────────────────────────
+
+  useEffect(() => () => {
+    clearTimer();
+    if (isWebView) {
+      postNativeWebViewMessage({ type: 'AUDIO_RECORD_STOP' });
+      return;
+    }
+    stopStream();
+    const rec = recorderRef.current;
+    if (rec && rec.state !== 'inactive') {
+      try { rec.stop(); } catch { /* ignore */ }
+    }
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     isRecording,
