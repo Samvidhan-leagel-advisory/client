@@ -124,20 +124,33 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     onUrl(null);
     chunksRef.current = [];
 
+    console.log('[AudioRecorder] start() called');
+    console.log('[AudioRecorder] navigator.mediaDevices:', navigator?.mediaDevices);
+    console.log('[AudioRecorder] getUserMedia available:', typeof navigator?.mediaDevices?.getUserMedia);
+    console.log('[AudioRecorder] MediaRecorder available:', typeof MediaRecorder);
+    console.log('[AudioRecorder] isSecureContext:', window.isSecureContext);
+    console.log('[AudioRecorder] location.protocol:', window.location.protocol);
+
     if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      console.error('[AudioRecorder] FAIL: navigator.mediaDevices.getUserMedia not available');
       setRecorderError('unsupported');
       return;
     }
     if (typeof MediaRecorder === 'undefined') {
+      console.error('[AudioRecorder] FAIL: MediaRecorder not available');
       setRecorderError('unsupported');
       return;
     }
 
     let stream: MediaStream;
     try {
+      console.log('[AudioRecorder] Calling getUserMedia...');
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('[AudioRecorder] getUserMedia SUCCESS — tracks:', stream.getTracks().map(t => `${t.kind}:${t.label}:${t.readyState}`));
     } catch (err) {
       const name = (err as { name?: string })?.name ?? '';
+      const message = (err as { message?: string })?.message ?? '';
+      console.error('[AudioRecorder] getUserMedia FAILED — name:', name, '| message:', message, '| full error:', err);
       if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') {
         setRecorderError('permission_denied');
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
@@ -154,7 +167,9 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     let mime: string | undefined;
     try {
       ({ recorder, mime } = makeRecorder(stream));
-    } catch {
+      console.log('[AudioRecorder] MediaRecorder created with mime:', mime ?? '(browser default)');
+    } catch (err) {
+      console.error('[AudioRecorder] makeRecorder FAILED — all mime types rejected:', err);
       stopStream();
       setRecorderError('unsupported');
       return;
@@ -168,7 +183,8 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     recorder.onstop = () => {
       void handleStop();
     };
-    recorder.onerror = () => {
+    recorder.onerror = (e) => {
+      console.error('[AudioRecorder] recorder.onerror fired:', e);
       setRecorderError('start_failed');
       try {
         recorder.stop();
@@ -180,7 +196,9 @@ export function useAudioRecorder(onUrl: (url: string | null) => void) {
     try {
       // Timeslice keeps Android WebView from buffering everything until stop.
       recorder.start(1000);
-    } catch {
+      console.log('[AudioRecorder] recorder.start(1000) OK — state:', recorder.state);
+    } catch (err) {
+      console.error('[AudioRecorder] recorder.start() FAILED:', err);
       stopStream();
       setRecorderError('start_failed');
       return;
