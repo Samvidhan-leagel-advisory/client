@@ -290,6 +290,16 @@ export const CreateCase = ({
                     </Button>
                   </div>
                 )}
+                {audio.permissionDenied && (
+                  <p className="text-xs text-destructive">
+                    Microphone access denied. Allow mic in device settings, then try again.
+                  </p>
+                )}
+                {audio.recorderError && !audio.permissionDenied && (
+                  <p className="text-xs text-destructive">
+                    Could not start recording. Try again or use text description.
+                  </p>
+                )}
                 {audio.uploadState === 'error' && (
                   <p className="text-xs text-destructive">Upload failed. Try again.</p>
                 )}
