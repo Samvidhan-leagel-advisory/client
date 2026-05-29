@@ -115,19 +115,26 @@ export const DashboardLayout = ({
             textVariant="headerCompact"
           />
         </div>
-        {showAvatar ? (
-          <img
-            src={user!.avatarUrl}
-            alt=""
-            referrerPolicy="no-referrer"
-            className="h-8 w-8 shrink-0 rounded-full object-cover"
-            onError={() => setAvatarLoadFailed(true)}
-          />
-        ) : (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy text-xs font-bold text-primary-foreground">
-            {user?.fullName?.charAt(0)?.toUpperCase()}
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          aria-label="Open menu"
+        >
+          {showAvatar ? (
+            <img
+              src={user!.avatarUrl}
+              alt=""
+              referrerPolicy="no-referrer"
+              className="h-8 w-8 rounded-full object-cover"
+              onError={() => setAvatarLoadFailed(true)}
+            />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy text-xs font-bold text-primary-foreground">
+              {user?.fullName?.charAt(0)?.toUpperCase()}
+            </div>
+          )}
+        </button>
       </header>
 
       {/* Sidebar overlay */}
