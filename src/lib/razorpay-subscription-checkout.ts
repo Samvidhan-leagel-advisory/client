@@ -8,6 +8,10 @@
 
 const CHECKOUT_SCRIPT = 'https://checkout.razorpay.com/v1/checkout.js';
 
+/** Brand assets shown inside the Razorpay modal. Logo must be a public HTTPS URL. */
+const BRAND_LOGO_URL = 'https://samvidhanadvisory.com/assets/logo.png';
+const BRAND_THEME_COLOR = '#1B2B5E';
+
 let scriptLoadPromise: Promise<void> | null = null;
 
 export type RazorpaySubscriptionPaymentResponse = {
@@ -83,6 +87,7 @@ export async function openRazorpaySubscriptionCheckout(
     subscription_id: params.subscriptionId,
     name: params.businessName,
     description: params.planLabel,
+    image: BRAND_LOGO_URL,
     prefill: params.prefill ?? {},
     handler(response: RazorpaySubscriptionPaymentResponse) {
       params.onSuccess?.(response);
@@ -92,7 +97,7 @@ export async function openRazorpaySubscriptionCheckout(
         params.onDismiss?.();
       },
     },
-    theme: { color: '#a17c2a' },
+    theme: { color: BRAND_THEME_COLOR },
   };
 
   const instance = new Ctor(options);
@@ -118,6 +123,7 @@ export async function openRazorpayOrderCheckout(
     currency: params.currency,
     name: params.businessName,
     description: params.planLabel,
+    image: BRAND_LOGO_URL,
     prefill: params.prefill ?? {},
     handler(response: RazorpayOrderPaymentResponse) {
       params.onSuccess?.(response);
@@ -127,7 +133,7 @@ export async function openRazorpayOrderCheckout(
         params.onDismiss?.();
       },
     },
-    theme: { color: '#a17c2a' },
+    theme: { color: BRAND_THEME_COLOR },
   };
 
   const instance = new Ctor(options);
