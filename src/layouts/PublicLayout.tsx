@@ -211,6 +211,14 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
                 </li>
                 <li>
                   <Link
+                    to={ROUTES.privacyPolicy}
+                    className="hover:text-primary-foreground"
+                  >
+                    Privacy policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to={ROUTES.dpdpConsent}
                     className="hover:text-primary-foreground"
                   >

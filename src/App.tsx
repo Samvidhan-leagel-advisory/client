@@ -20,6 +20,7 @@ import DummyLoginPage from './pages/DummyLoginPage';
 import FAQPage from './pages/FAQPage';
 import Index from './pages/Index';
 import LoginPage from './pages/LoginPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsPage from './pages/TermsPage';
 
 import CaseInternalNotesPage from './pages/CaseInternalNotesPage';
@@ -72,6 +73,7 @@ const AppInner = () => (
             <Route path={ROUTES.about} element={<AboutPage />} />
             <Route path={ROUTES.faq} element={<FAQPage />} />
             <Route path={ROUTES.terms} element={<TermsPage />} />
+            <Route path={ROUTES.privacyPolicy} element={<PrivacyPolicyPage />} />
             <Route path={ROUTES.dpdpConsent} element={<DpdpConsentPage />} />
             <Route
               path={ROUTES.plans}

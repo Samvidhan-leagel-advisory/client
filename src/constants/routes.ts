@@ -15,6 +15,7 @@ export const ROUTES = {
   home: '/',
   faq: '/faq',
   terms: '/terms',
+  privacyPolicy: '/privacy-policy',
   dpdpConsent: '/dpdp-consent',
   /** @deprecated Public marketing removed — redirects to home */
   plans: '/plans',
