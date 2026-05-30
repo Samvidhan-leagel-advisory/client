@@ -60,7 +60,7 @@ export function useSubscription() {
             orderId,
             amount: amount as number,
             currency: currency as string,
-            businessName: 'Samvidhan',
+            businessName: 'Samvidhan Legal Advisory',
             planLabel: planName,
             prefill,
             onSuccess,
@@ -70,7 +70,7 @@ export function useSubscription() {
           await openRazorpaySubscriptionCheckout({
             keyId: razorpayKeyId,
             subscriptionId,
-            businessName: 'Samvidhan',
+            businessName: 'Samvidhan Legal Advisory',
             planLabel: planName,
             prefill,
             onSuccess,
