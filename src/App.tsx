@@ -15,6 +15,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import AboutPage from './pages/AboutPage';
+import DeleteAccountPage from './pages/DeleteAccountPage';
 import DpdpConsentPage from './pages/DpdpConsentPage';
 import DummyLoginPage from './pages/DummyLoginPage';
 import FAQPage from './pages/FAQPage';
@@ -74,6 +75,10 @@ const AppInner = () => (
             <Route path={ROUTES.faq} element={<FAQPage />} />
             <Route path={ROUTES.terms} element={<TermsPage />} />
             <Route path={ROUTES.privacyPolicy} element={<PrivacyPolicyPage />} />
+            <Route
+              path={ROUTES.deleteAccount}
+              element={<DeleteAccountPage />}
+            />
             <Route path={ROUTES.dpdpConsent} element={<DpdpConsentPage />} />
             <Route
               path={ROUTES.plans}

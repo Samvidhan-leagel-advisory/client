@@ -16,6 +16,7 @@ export const ROUTES = {
   faq: '/faq',
   terms: '/terms',
   privacyPolicy: '/privacy-policy',
+  deleteAccount: '/delete-account',
   dpdpConsent: '/dpdp-consent',
   /** @deprecated Public marketing removed — redirects to home */
   plans: '/plans',
