@@ -1,8 +1,8 @@
-import '@/lib/buffer-polyfill';
+import { proxyAsset } from '@/api-client';
 import logoUrl from '@/assets/logo.png';
 import signUrl from '@/assets/sign.png';
-import { proxyAsset } from '@/api-client';
 import { SamvidhanCardPdfDocument } from '@/components/pdf/SamvidhanCardPdfTemplate';
+import '@/lib/buffer-polyfill';
 import { pdf } from '@react-pdf/renderer';
 import { createElement } from 'react';
 
@@ -27,14 +27,59 @@ type BuildCardInput = {
   memEndDate?: string;
 };
 
-async function resolvePhotoDataUri(photoUrl?: string): Promise<string | undefined> {
-  if (!photoUrl) return undefined;
-  if (photoUrl.startsWith('data:')) return photoUrl;
-  const { data } = await proxyAsset(photoUrl);
-  return data.dataUri as string | undefined;
+/**
+ * react-pdf only renders PNG/JPEG. Member avatars are often WebP, which it
+ * silently drops, so re-encode any source image to PNG via a canvas.
+ */
+async function toPngDataUri(dataUri: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Could not get canvas context'));
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = () => reject(new Error('Failed to decode member photo'));
+    img.src = dataUri;
+  });
 }
 
-async function buildCardData(input: BuildCardInput): Promise<SamvidhanCardPdfData> {
+// Formats react-pdf can embed directly. Anything else (e.g. webp) must be
+// re-encoded to PNG first.
+const PDF_SAFE_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
+
+function isPdfSafeImage(dataUri: string): boolean {
+  const mime = dataUri.slice(5, dataUri.indexOf(';')).toLowerCase();
+  return PDF_SAFE_IMAGE_TYPES.includes(mime);
+}
+
+async function resolvePhotoDataUri(
+  photoUrl?: string
+): Promise<string | undefined> {
+  if (!photoUrl) return undefined;
+  const sourceDataUri = photoUrl.startsWith('data:')
+    ? photoUrl
+    : ((await proxyAsset(photoUrl)).data.dataUri as string | undefined);
+  if (!sourceDataUri) return undefined;
+  if (isPdfSafeImage(sourceDataUri)) return sourceDataUri;
+  try {
+    return await toPngDataUri(sourceDataUri);
+  } catch {
+    return sourceDataUri;
+  }
+}
+
+async function buildCardData(
+  input: BuildCardInput
+): Promise<SamvidhanCardPdfData> {
   return {
     title: `${input.memberName}-${input.memNumber}-samvidhan-legal-advisory-card`,
     logoUrl,
@@ -52,7 +97,9 @@ function isReactNativeWebView(): boolean {
   return (
     typeof window !== 'undefined' &&
     typeof (
-      window as Window & { ReactNativeWebView?: { postMessage: (msg: string) => void } }
+      window as Window & {
+        ReactNativeWebView?: { postMessage: (msg: string) => void };
+      }
     ).ReactNativeWebView?.postMessage === 'function'
   );
 }
@@ -84,7 +131,8 @@ async function blobToBase64(blob: Blob): Promise<string> {
       }
       resolve(base64);
     };
-    reader.onerror = () => reject(reader.error ?? new Error('Failed to read PDF blob'));
+    reader.onerror = () =>
+      reject(reader.error ?? new Error('Failed to read PDF blob'));
     reader.readAsDataURL(blob);
   });
 }
@@ -93,9 +141,14 @@ async function savePdfBlob(blob: Blob, filename: string): Promise<void> {
   // WebView: programmatic <a download> is ignored — hand off to the native shell.
   if (isReactNativeWebView()) {
     const base64 = await blobToBase64(blob);
-    const bridge = (window as unknown as { ReactNativeWebView: { postMessage: (msg: string) => void } })
-      .ReactNativeWebView;
-    bridge.postMessage(JSON.stringify({ type: 'DOWNLOAD_PDF', filename, base64 }));
+    const bridge = (
+      window as unknown as {
+        ReactNativeWebView: { postMessage: (msg: string) => void };
+      }
+    ).ReactNativeWebView;
+    bridge.postMessage(
+      JSON.stringify({ type: 'DOWNLOAD_PDF', filename, base64 })
+    );
     return;
   }
 
