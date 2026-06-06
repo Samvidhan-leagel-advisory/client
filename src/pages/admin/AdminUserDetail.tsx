@@ -1,6 +1,7 @@
 import { getAdminUserCases, getAdminUserDetails } from '@/api-client';
 import { Button } from '@/components/ui/button';
 import { ActiveSubscriptionCard } from '@/components/user/ActiveSubscriptionCard';
+import { DownloadSamvidhanCard } from '@/components/user/DownloadSamvidhanCard';
 import { UserCasesTable } from '@/components/user/UserCasesTable';
 import { UserPaymentsTable } from '@/components/user/UserPaymentsTable';
 import WithShimmer from '@/components/WithShimmer';
@@ -155,6 +156,18 @@ const AdminUserDetail = () => {
           subscription={userActiveSubscription}
           isLoading={isUserSubscriptionLoading}
         />
+
+        {userActiveSubscription && (
+          <DownloadSamvidhanCard
+            subscriptionPlan={userActiveSubscription}
+            member={{
+              fullName: userData?.fullName,
+              memNumber: userData?.memNumber,
+              avatarUrl: userData?.avatarUrl,
+              phone: userData?.phone,
+            }}
+          />
+        )}
 
         {/* Cases */}
         <div>

@@ -8,27 +8,47 @@ import type { ActiveSubscriptionView } from '@/types';
 import { FileDown, Loader2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
+interface CardMember {
+  fullName?: string | null;
+  memNumber?: string | null;
+  avatarUrl?: string | null;
+  phone?: string | null;
+}
+
 interface DownloadSamvidhanCardProps {
   subscriptionPlan: ActiveSubscriptionView;
+  /**
+   * Admin override: when provided, the card is generated for this member using
+   * the supplied subscription instead of the currently authenticated user.
+   */
+  member?: CardMember;
 }
 
 export const DownloadSamvidhanCard = ({
-  subscriptionPlan: _,
+  subscriptionPlan,
+  member,
 }: DownloadSamvidhanCardProps) => {
+  const isAdminMode = Boolean(member);
   const { user } = useAuth();
-  const { subscription: activeSubscription } = useActiveSubscription();
+  const { subscription: ownActiveSubscription } = useActiveSubscription();
   const [downloading, setDownloading] = useState(false);
+
+  const activeSubscription = isAdminMode
+    ? subscriptionPlan
+    : ownActiveSubscription;
 
   const handleDownload = useCallback(async () => {
     setDownloading(true);
     try {
-      const { data: freshUser } = await getCurrentUser();
+      const member$ = member
+        ? member
+        : await getCurrentUser().then(({ data }) => data);
 
       await downloadSamvidhanAdvisoryCardPdf({
-        memberName: freshUser?.fullName ?? user?.fullName ?? '',
-        memNumber: user?.memNumber ?? '',
-        photoUrl: freshUser?.avatarUrl ?? user?.avatarUrl,
-        userMobileNo: freshUser?.phone ?? user?.phone ?? '',
+        memberName: member$?.fullName ?? user?.fullName ?? '',
+        memNumber: member$?.memNumber ?? user?.memNumber ?? '',
+        photoUrl: member$?.avatarUrl ?? user?.avatarUrl ?? undefined,
+        userMobileNo: member$?.phone ?? user?.phone ?? '',
         memStartDate: new Date(
           activeSubscription?.startDate ?? ''
         ).toLocaleDateString('en-GB'),
@@ -46,7 +66,7 @@ export const DownloadSamvidhanCard = ({
     } finally {
       setDownloading(false);
     }
-  }, [user, activeSubscription]);
+  }, [member, user, activeSubscription]);
 
   return (
     <div className="space-y-3 rounded-xl border border-gold/25 bg-gold/5 p-6 shadow-sm">
@@ -55,7 +75,9 @@ export const DownloadSamvidhanCard = ({
         <h3 className="font-semibold">Legal Advisory card</h3>
       </div>
       <p className="text-sm text-muted-foreground">
-        Download your Samvidhan Legal Advisory membership card as a PDF.
+        {isAdminMode
+          ? 'Download this member’s Samvidhan Legal Advisory membership card as a PDF.'
+          : 'Download your Samvidhan Legal Advisory membership card as a PDF.'}
       </p>
       <Button
         type="button"
